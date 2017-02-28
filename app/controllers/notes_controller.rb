@@ -1,16 +1,15 @@
 class NotesController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create, :update, :destroy]
+  before_action :authenticate_user!, only: [:create, :update, :destroy]
 
   def index
+    # note creation modal
+    @note = Note.new
+
     if current_user
       render json: current_user.notes.order(:updated_at)
     else
       render json: nil, status: :ok
     end
-  end
-
-  def new
-    @note = Note.new
   end
 
   def create
@@ -25,14 +24,14 @@ class NotesController < ApplicationController
   end
 
   def destroy
-    Task.find(params[:id]).destroy
+    Note.find(params[:id]).destroy
     render json: nil, status: :ok
   end
 
   private
 
   def note_params
-    params.require(:gram).permit(:title, :body)
+    params.require(:note).permit(:title, :body)
   end
 
   def get_tags
