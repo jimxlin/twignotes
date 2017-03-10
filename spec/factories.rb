@@ -1,4 +1,10 @@
 FactoryGirl.define do
+  factory :tagging do
+    
+  end
+  factory :tag do
+    
+  end
   factory :user do
     sequence :email do |n|
       "foobar-#{n}@foobar.com"

@@ -25,6 +25,8 @@ class NotesController < ApplicationController
 
   def destroy
     Note.find(params[:id]).destroy
+    # if item successfully deleted (5xx)
+    # or if id never existed (4xx)
     render json: nil, status: :ok
   end
 
