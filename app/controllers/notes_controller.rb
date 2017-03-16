@@ -2,9 +2,6 @@ class NotesController < ApplicationController
   before_action :authenticate_user!, only: [:create, :update, :destroy]
 
   def index
-    # note creation modal
-    @note = Note.new
-
     if current_user
       render json: current_user.notes.order(:updated_at)
     else
@@ -34,10 +31,5 @@ class NotesController < ApplicationController
 
   def note_params
     params.require(:note).permit(:title, :body)
-  end
-
-  def get_tags
-    hashtags = []
-    mentions = []
   end
 end

@@ -42,3 +42,30 @@
     </main>
   </div>
 </div>
+
+<script>
+  $(function() {
+
+    // populate sidebar with tags
+    $.get("/tags").success(function(tags) {
+      var hashtagHtml = ""
+      var mentionHtml = ""
+      tags.forEach(function(tag, i) {
+
+      });
+    });
+
+    // populate main window with notes
+    $.get("/notes").success(function(notes) {
+      notes.forEach
+    });
+
+    // Creates an <li> element out of JSON data for tags
+    function sidebarTagHtml(tag) {
+
+    }
+
+    // Creates an <li> element out of JSON data for Notes
+
+  });
+</script>
