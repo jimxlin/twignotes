@@ -42,7 +42,7 @@ input {
   top: 56px;
   bottom: 0;
   left: 0;
-  margin-top: 20px;
+  padding-top: 20px;
   z-index: 1000;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
@@ -69,4 +69,15 @@ input {
 
 .sidebar .nav-link {
   border-radius: 0;
+}
+
+/*
+ * Note sorting bar
+ */
+
+.sort-notes-bar {
+  background-color: #DCEDC8;
+  height: 32px;
+  margin-left: -15px;
+  margin-right: -15px;
 }
