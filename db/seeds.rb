@@ -3,8 +3,14 @@ Note.delete_all
 Tagging.delete_all
 Tag.delete_all
 
-user = User.create(
+user1 = User.create(
   email: 'foobar@foobar.com',
+  password: 'foobar',
+  password_confirmation: 'foobar'
+)
+
+user2 = User.create(
+  email: 'foobaz@foobaz.com',
   password: 'foobar',
   password_confirmation: 'foobar'
 )
@@ -22,5 +28,6 @@ mentions = []
   (rand(0..4)).times { body += " #{hashtags.sample}" }
   (rand(0..4)).times { body += " #{mentions.sample}"}
 
-  user.notes.create(title: title, body: body)
+  user1.notes.create(title: title, body: body)
+  user2.notes.create(title: title, body: body)
 end

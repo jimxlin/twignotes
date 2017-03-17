@@ -1,47 +1,45 @@
-<div class="container-fluid" >
-  <div class="row">
-    <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar" id="sidebar">
-      <ul class="nav flex-column edit-notes">
-        <li class="nav-item">
-          <div class="create-note">
-            New Note +
-          </div>
-        </li>
-      </ul>
-
-      <ul class="nav flex-column list-hashtags">
-        <li class="nav-item toggle-view-hashtags">
-          Hashtags
-        </li>
-        <li class="nav-item clear-selected-hashtags">
-          clear selected
-        </li>
-      </ul>
-
-      <ul class="nav flex-column list-mentions">
-        <li class="nav-item toggle-view-mentions">
-          Mentions
-        </li>
-        <li class="nav-item clear-selected-mentions">
-          clear selected
-        </li>
-      </ul>
-
-      <ul class="nav flex-column list-untagged">
-        <li class="nav-item view-untagged-">
-          Untagged
-        </li>
-      </ul>
-    </nav>
-
-    <main class="col">
-      <div class="sort-notes-bar">
-        note sorting here
+<nav class="col-sm-3 col-md-2 bg-faded sidebar" id="sidebar">
+  <ul class="nav flex-column edit-notes">
+    <li class="nav-item">
+      <div class="create-note">
+        New Note +
       </div>
-      <h1>Notes</h1>
-    </main>
-  </div>
+    </li>
+  </ul>
+
+  <ul class="nav flex-column list-hashtags">
+    <li class="nav-item toggle-view-hashtags">
+      Hashtags
+    </li>
+    <li class="nav-item clear-selected-hashtags">
+      clear selected
+    </li>
+  </ul>
+
+  <ul class="nav flex-column list-mentions">
+    <li class="nav-item toggle-view-mentions">
+      Mentions
+    </li>
+    <li class="nav-item clear-selected-mentions">
+      clear selected
+    </li>
+  </ul>
+
+  <ul class="nav flex-column list-untagged">
+    <li class="nav-item view-untagged-">
+      Untagged
+    </li>
+  </ul>
+</nav>
+
+<div class="sort-notes-bar">
+  note sorting here
 </div>
+
+<main class="col-12">
+
+</main>
+
 
 <script>
   $(function() {
@@ -51,12 +49,11 @@
       if (!tags) return null;
       var hashtagHtml = "";
       var mentionHtml = "";
-      console.log(tags);
       tags.forEach(function(tag, i) {
         if (tag.mention) {
-          mentionHtml += sidebarTagHtml(tag, true)
+          mentionHtml += sidebarTagHtml(tag, true);
         } else {
-          hashtagHtml += sidebarTagHtml(tag, false)
+          hashtagHtml += sidebarTagHtml(tag, false);
         }
       });
       $('.list-hashtags').append(hashtagHtml);
@@ -65,22 +62,36 @@
 
     // populate main window with notes
     $.get("/notes").success(function(notes) {
-      //notes.forEach
+      if (!notes) return null;
+      var notesHtml = ""
+      notes.forEach(function(note, i) {
+        notesHtml += noteHtml(note);
+      });
+      $('main').append(notesHtml);
     });
 
     // Creates an <li> element out of JSON data for tags
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
+      var labelStr = prefix + tag.name + ' (' + NaN + ')'
       var liElement =
         '<li id="listItem-"' + tag.id + '>' +
         '<div class="view">' +
-        '<label>' + prefix + tag.name + '</label>' +
+        '<label>' + labelStr + '</label>' +
         '<input class="toggle" type="checkbox" data-id="' + tag.id + '">' +
         '</div></li>';
       return liElement;
     }
 
-    // Creates an <li> element out of JSON data for Notes
+    // Creates an <div> element out of JSON data for Notes
+    function noteHtml(note) {
+      var divElement =
+        '<div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 notecard">' +
+        '<p>' + note.title + '</p><hr />' +
+        '<p>' + note.body + '</p>' +
+        '</div>';
+      return divElement;
+    }
 
   });
 </script>
