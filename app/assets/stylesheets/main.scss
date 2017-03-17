@@ -77,7 +77,7 @@ input {
   float: right;
 }
 
-.sidebar .branc {
+.sidebar  {
   width: 90px;
 }
 
@@ -98,6 +98,12 @@ main {
   background-color: #FFCDD2;
   padding: 0px;
   text-align: center;
+}
+
+.note-container {
+  display: inline-block;
+  padding: 0px;
+  user-select: none;
 }
 
 .notecard {
