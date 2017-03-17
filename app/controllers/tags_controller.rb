@@ -1,7 +1,7 @@
 class TagsController < ApplicationController
   def index
     if current_user
-      render json: current_user.tags.order(:name)
+      render json: current_user.tags.order(:name).uniq
     else
       render json: nil, status: :ok
     end

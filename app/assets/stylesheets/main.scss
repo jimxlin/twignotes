@@ -63,12 +63,17 @@ input {
   width: 100%;
 }
 
-.sidebar .nav-item + .nav-item {
-  margin-left: 0;
-}
-
 .sidebar .nav-link {
   border-radius: 0;
+}
+
+.sidebar label {
+  display: inline-block;
+}
+
+input {
+  display: inline-block;
+  float: right;
 }
 
 /*
@@ -80,4 +85,12 @@ input {
   height: 32px;
   margin-left: -15px;
   margin-right: -15px;
+}
+
+/*
+ * Notes display
+ */
+
+main {
+  background-color: #FFCDD2;
 }
