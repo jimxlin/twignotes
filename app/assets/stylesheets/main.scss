@@ -77,6 +77,10 @@ input {
   float: right;
 }
 
+.sidebar .branc {
+  width: 90px;
+}
+
 /*
  * Note sorting bar
  */
@@ -93,6 +97,7 @@ input {
 main {
   background-color: #FFCDD2;
   padding: 0px;
+  text-align: center;
 }
 
 .notecard {
