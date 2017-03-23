@@ -32,17 +32,21 @@
   </ul>
 </nav>
 
-<div class="sort-notes-bar">
-  note sorting here
-</div>
-
 <main class="col-12">
+  <div class="sort-notes-bar row">
+    note sorting here
+  </div>
+  <div class="notecards-container row">
 
+  </div>
 </main>
 
 
 <script>
   $(function() {
+
+    // key: tag_id, value: array of associated note_ids
+    var tagNoteIds = {};
 
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
@@ -50,25 +54,59 @@
       var hashtagHtml = "";
       var mentionHtml = "";
       tags.forEach(function(tag, i) {
+        tagNoteIds[tag.id] = [];
         if (tag.mention) {
           mentionHtml += sidebarTagHtml(tag, true);
         } else {
           hashtagHtml += sidebarTagHtml(tag, false);
         }
       });
+      getTaggings();
       $('.list-hashtags').append(hashtagHtml);
       $('.list-mentions').append(mentionHtml);
     });
 
-    // populate main window with notes
-    $.get("/notes").success(function(notes) {
-      if (!notes) return null;
-      var notesHtml = ""
-      notes.forEach(function(note, i) {
-        notesHtml += noteHtml(note);
-      });
-      $('main').append(notesHtml);
+    // Populate main window with notes
+    populateNotes();
+
+    // Filter notes by tags in sidebar
+    var filterTagIds = [];
+    $('.sidebar').on('click','.view',function(){
+      var $checkbox = $(this).children('input');
+      var tagId = $checkbox.data('id');
+      if ($checkbox.prop('checked')) {
+        $checkbox.prop('checked', false);
+        filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
+      } else {
+        $checkbox.prop('checked', true);
+        filterTagIds.push(tagId);
+      }
+      populateNotes();
     });
+
+/******************************************************************************/
+
+    function populateNotes() {
+      $('.note-container').remove();
+      $.get("/notes").success(function(notes) {
+        if (!notes) return null;
+        var notesHtml = "";
+        //console.log(filterNotesByTag(notes));
+        filterNotesByTag(notes).forEach(function(note, i) {
+          notesHtml += noteHtml(note);
+        });
+        $('.notecards-container').append(notesHtml);
+      });
+    }
+
+    // Get taggings
+    function getTaggings() {
+      $.get("/taggings").success(function(taggings) {
+        taggings.forEach(function(tagging, i) {
+          tagNoteIds[tagging.tag_id].push(tagging.note_id);
+        });
+      });
+    }
 
     // Creates an <li> element out of JSON data for tags
     function sidebarTagHtml(tag, mention) {
@@ -85,14 +123,32 @@
 
     // Creates an <div> element out of JSON data for Notes
     function noteHtml(note) {
+      var titleHtml = note.title ? '<p>' + note.title + '</p><hr />' : '';
       var divElement =
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
         '<div class="notecard">' +
-        '<p>' + note.title + '</p><hr />' +
+        titleHtml +
         '<p>' + note.body + '</p>' +
         '</div></div>';
       return divElement;
     }
 
+    // Filters JSON note objects by tags
+    function filterNotesByTag(notes) {
+      if (filterTagIds.length === 0) return notes;
+
+      var tagFilteredNoteIds = [];
+      filterTagIds.forEach(function(tagId, i) {
+        tagFilteredNoteIds = tagFilteredNoteIds.concat(tagNoteIds[tagId]);
+      });
+
+      var filteredNotes = [];
+      notes.forEach(function(note, i){
+        if (tagFilteredNoteIds.includes(note.id)) {
+          filteredNotes.push(note);
+        }
+      });
+      return filteredNotes;
+    }
   });
 </script>

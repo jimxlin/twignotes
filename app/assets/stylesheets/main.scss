@@ -1,6 +1,14 @@
 @import "bootstrap";
 @import "font-awesome";
 
+body {
+  background-color: #FFCDD2;
+}
+
+/*
+ * User forms
+ */
+
 .card {
   background-color: #fff;
   border-radius: .25rem;
@@ -19,7 +27,7 @@ label {
   font-size: 18px;
 }
 
-input {
+.card input {
   font-size: 18px;
   font-weight: 400;
 }
@@ -31,6 +39,11 @@ input {
 .navbar {
   background-color: #B2DFDB;
   z-index: 2000;
+  //height: 60px;
+}
+
+.brand {
+  width: 90px;
 }
 
 /*
@@ -77,10 +90,6 @@ input {
   float: right;
 }
 
-.sidebar  {
-  width: 90px;
-}
-
 /*
  * Note sorting bar
  */
@@ -88,6 +97,7 @@ input {
 .sort-notes-bar {
   background-color: #DCEDC8;
   height: 32px;
+  margin: 0 -15px 0 -15px;
 }
 
 /*
@@ -95,7 +105,6 @@ input {
  */
 
 main {
-  background-color: #FFCDD2;
   padding: 0px;
   text-align: center;
 }
@@ -116,4 +125,5 @@ main {
   display: inline-block;
   height: 256px;
   overflow: hidden;
+  cursor: pointer;
 }

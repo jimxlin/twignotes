@@ -21,10 +21,10 @@ mentions = []
 8.times { mentions << '@' + Faker::Name.first_name}
 
 32.times do
-  title = Faker::Hipster.sentence(rand(1..6))
+  title = [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
   (rand(0..1)).times { title += " #{hashtags.sample}" }
   (rand(0..1)).times { title += " #{mentions.sample}" }
-  body = Faker::Hipster.paragraph(rand(2..4))
+  body = Faker::Hipster.paragraph(rand(1..3))
   (rand(0..4)).times { body += " #{hashtags.sample}" }
   (rand(0..4)).times { body += " #{mentions.sample}"}
 
