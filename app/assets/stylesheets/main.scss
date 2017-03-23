@@ -39,11 +39,11 @@ label {
 .navbar {
   background-color: #B2DFDB;
   z-index: 2000;
-  //height: 60px;
 }
 
 .brand {
-  width: 90px;
+  width: 180px;
+  font-size: 28px;
 }
 
 /*
@@ -91,13 +91,27 @@ label {
 }
 
 /*
- * Note sorting bar
+ * Note filter bar
  */
 
-.sort-notes-bar {
+.filter-bar {
   background-color: #DCEDC8;
-  height: 32px;
   margin: 0 -15px 0 -15px;
+}
+
+.filter-bar li {
+  list-style: none;
+  display: inline;
+  margin-right: 8px;
+  padding: 4px;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  cursor: pointer;
+}
+
+
+.filter-bar .time-filters {
+  float: right;
 }
 
 /*
@@ -106,7 +120,6 @@ label {
 
 main {
   padding: 0px;
-  text-align: center;
 }
 
 .note-container {
@@ -123,7 +136,7 @@ main {
   margin: 10px 10px 10px 10px;
   padding: 20px;
   display: inline-block;
-  height: 256px;
+  height: 200px;
   overflow: hidden;
   cursor: pointer;
 }

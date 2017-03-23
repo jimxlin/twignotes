@@ -20,7 +20,9 @@ hashtags = []
 mentions = []
 8.times { mentions << '@' + Faker::Name.first_name}
 
-32.times do
+# User1
+
+28.times do
   title = [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
   (rand(0..1)).times { title += " #{hashtags.sample}" }
   (rand(0..1)).times { title += " #{mentions.sample}" }
@@ -29,5 +31,31 @@ mentions = []
   (rand(0..4)).times { body += " #{mentions.sample}"}
 
   user1.notes.create(title: title, body: body)
+end
+
+4.times do
+  title = [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
+  body = Faker::Hipster.paragraph(rand(1..3))
+
+  user1.notes.create(title: title, body: body)
+end
+
+# User2
+
+28.times do
+  title = [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
+  (rand(0..1)).times { title += " #{hashtags.sample}" }
+  (rand(0..1)).times { title += " #{mentions.sample}" }
+  body = Faker::Hipster.paragraph(rand(1..3))
+  (rand(0..4)).times { body += " #{hashtags.sample}" }
+  (rand(0..4)).times { body += " #{mentions.sample}"}
+
+  user2.notes.create(title: title, body: body)
+end
+
+4.times do
+  title = [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
+  body = Faker::Hipster.paragraph(rand(1..3))
+
   user2.notes.create(title: title, body: body)
 end
