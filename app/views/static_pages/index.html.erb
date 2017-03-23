@@ -47,6 +47,15 @@
 
     // key: tag_id, value: array of associated note_ids
     var tagNoteIds = {};
+    $.get("/taggings").success(function(taggings) {
+      taggings.forEach(function(tagging, i) {
+        if (tagNoteIds[tagging.tag_id]) {
+          tagNoteIds[tagging.tag_id].push(tagging.note_id);
+        } else {
+          tagNoteIds[tagging.tag_id] = [tagging.note_id];
+        }
+      });
+    });
 
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
@@ -54,14 +63,12 @@
       var hashtagHtml = "";
       var mentionHtml = "";
       tags.forEach(function(tag, i) {
-        tagNoteIds[tag.id] = [];
         if (tag.mention) {
           mentionHtml += sidebarTagHtml(tag, true);
         } else {
           hashtagHtml += sidebarTagHtml(tag, false);
         }
       });
-      getTaggings();
       $('.list-hashtags').append(hashtagHtml);
       $('.list-mentions').append(mentionHtml);
     });
@@ -91,7 +98,6 @@
       $.get("/notes").success(function(notes) {
         if (!notes) return null;
         var notesHtml = "";
-        //console.log(filterNotesByTag(notes));
         filterNotesByTag(notes).forEach(function(note, i) {
           notesHtml += noteHtml(note);
         });
@@ -99,19 +105,13 @@
       });
     }
 
-    // Get taggings
-    function getTaggings() {
-      $.get("/taggings").success(function(taggings) {
-        taggings.forEach(function(tagging, i) {
-          tagNoteIds[tagging.tag_id].push(tagging.note_id);
-        });
-      });
-    }
+
 
     // Creates an <li> element out of JSON data for tags
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
-      var labelStr = prefix + tag.name + ' (' + NaN + ')'
+      var noteCount = tagNoteIds[tag.id].length
+      var labelStr = prefix + tag.name + ' (' + noteCount + ')'
       var liElement =
         '<li id="listItem-"' + tag.id + '>' +
         '<div class="view">' +
