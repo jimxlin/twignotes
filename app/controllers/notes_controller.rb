@@ -1,9 +1,9 @@
 class NotesController < ApplicationController
   before_action :authenticate_user!, only: [:create, :update, :destroy]
 
-  def index
+  def filtered_index
     if current_user
-      render json: current_user.notes.order(:updated_at)
+      render json: filtered_notes(params[:tags])
     else
       render json: nil, status: :ok
     end
@@ -28,6 +28,24 @@ class NotesController < ApplicationController
   end
 
   private
+
+  def filtered_notes(tags)
+    if tags.nil?
+      current_user.notes
+    else
+      notes = current_user.notes.joins(:taggings)
+        .where(taggings: { tag_id: tags })
+
+      # client requests untagged notes
+      untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
+      if tags.include?(untagged)
+        notes += current_user.notes.left_outer_joins(:taggings) # notes is now an array, no longer an AR object
+          .where(taggings: { id: nil })
+      end
+      
+      notes
+    end
+  end
 
   def note_params
     params.require(:note).permit(:title, :body)

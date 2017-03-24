@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
   root 'static_pages#index'
-  resources :notes
+  get 'notes/filtered', to: 'notes#filtered_index'
+  resources :notes, only: [:create, :update, :destroy]
   resources :tags, only: :index
-  resources :taggings, only: :index
 end

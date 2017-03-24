@@ -6,6 +6,10 @@
     <li class="nav-item clear-selected-tags">
       clear selected
     </li>
+    <li class="nav-item untagged-filter">
+      <label>Untagged</label>
+      <input class="toggle" type="checkbox" data-id='UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'>
+    </li>
   </ul>
 
   <ul class="nav flex-column list-hashtags">
@@ -31,20 +35,8 @@
 </main>
 
 <script>
+  const untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
   $(function() {
-
-    // key: tag_id, value: array of associated note_ids
-    var tagNoteIds = {};
-    $.get("/taggings").success(function(taggings) {
-      // if no one is signed in, return null
-      taggings.forEach(function(tagging, i) {
-        if (tagNoteIds[tagging.tag_id]) {
-          tagNoteIds[tagging.tag_id].push(tagging.note_id);
-        } else {
-          tagNoteIds[tagging.tag_id] = [tagging.note_id];
-        }
-      });
-    });
 
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
@@ -63,10 +55,10 @@
     });
 
     // Populate main window with notes
-    populateNotes();
+    var filterTagIds = [];
+    populateNotes(filterTagIds);
 
     // Filter notes by tags in sidebar
-    var filterTagIds = [];
     $('.sidebar').on('click','div',function(){
       var $checkbox = $(this).children('input');
       var tagId = $checkbox.data('id');
@@ -84,32 +76,58 @@
         filterTagIds.push(tagId);
         $('.tag-filters').append(filterBarHtml(tagName, tagId));
       }
-      populateNotes();
+      populateNotes(filterTagIds);
+    });
+
+    // Filter untagged notes
+    $('.sidebar .untagged-filter').click(function(){
+      var $checkbox = $(this).children('input');
+
+      // Remove tag filter
+      if ($checkbox.prop('checked')) {
+        $checkbox.prop('checked', false);
+        filterTagIds.splice(filterTagIds.indexOf(untagged), 1);
+        $('.tag-filters #' + untagged).remove();
+
+      // Add tag filter
+      } else {
+        $checkbox.prop('checked', true);
+        filterTagIds.push(untagged);
+        $('.tag-filters').append('<li id="' + untagged + '">Untagged</li>');
+      }
+      populateNotes(filterTagIds);
     });
 
     // Remove tag filters when clicking them on the filter-bar
     $('.tag-filters').on('click', 'li', function(){
       var tagId = $(this).attr('id');
-
       $('[data-id=' + tagId + ']').prop('checked', false);
       filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
       $(this).remove();
 
-      populateNotes();
+      populateNotes(filterTagIds);
     });
 
 /*************************************************************************/
 
-    function populateNotes() {
+    function populateNotes(tagIds) {
       $('.note-container').remove();
-      $.get("/notes").success(function(notes) {
+      $.get("/notes/filtered?"+queryStr(tagIds)).success(function(notes) {
         if (!notes) return null;
         var notesHtml = "";
-        filterNotesByTag(notes).forEach(function(note, i) {
+        notes.forEach(function(note, i) {
           notesHtml += noteHtml(note);
         });
         $('.notecards-container').append(notesHtml);
       });
+    }
+
+    function queryStr(tagIds) {
+      var string = ""
+      tagIds.forEach(function(tagId, i) {
+        string += 'tags[]=' + tagId + '&'
+      });
+      return string.slice(0, -1);
     }
 
     // Creates an <li> tag element for the filter-bar
@@ -121,15 +139,12 @@
     // Creates an <li> element out of JSON data for tags
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
-      var noteCount = tagNoteIds[tag.id].length
-      var nulltag = tag.name === '00000000NULLTAG00000000'
-      var labelStr = nulltag ? 'Untagged (' + noteCount + ')' : prefix + tag.name + ' (' + noteCount + ')';
+      var labelStr = prefix + tag.name + ' (' + NaN + ')';
       var liElement =
         '<li><div>' +
         '<label>' + labelStr + '</label>' +
         '<input class="toggle" type="checkbox" data-id="' + tag.id + '">' +
         '</div></li>';
-      if (nulltag) liElement += '<div class="untagged-divider" />';
       return liElement;
     }
 
@@ -143,24 +158,6 @@
         '<p>' + note.body + '</p>' +
         '</div></div>';
       return divElement;
-    }
-
-    // Filters JSON note objects by tagNoteIds
-    function filterNotesByTag(notes) {
-      if (filterTagIds.length === 0) return notes;
-
-      var tagFilteredNoteIds = [];
-      filterTagIds.forEach(function(tagId, i) {
-        tagFilteredNoteIds = tagFilteredNoteIds.concat(tagNoteIds[tagId]);
-      });
-
-      var filteredNotes = [];
-      notes.forEach(function(note, i){
-        if (tagFilteredNoteIds.includes(note.id)) {
-          filteredNotes.push(note);
-        }
-      });
-      return filteredNotes;
     }
   });
 </script>
