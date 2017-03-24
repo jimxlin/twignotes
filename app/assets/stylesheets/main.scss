@@ -91,8 +91,10 @@ label {
 
 .filter-bar {
   background-color: #DCEDC8;
-  margin: 0 -15px 0 -15px;
-  // position: fixed;
+  margin: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 500;
 }
 
 .filter-bar li {
@@ -113,6 +115,10 @@ label {
 /*
  * Notes display
  */
+
+main {
+  margin-top: 40px;
+}
 
 .notecards-container {
   padding: 10px 20px 20px 20px;
