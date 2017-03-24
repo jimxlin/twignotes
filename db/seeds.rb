@@ -3,6 +3,9 @@ Note.delete_all
 Tagging.delete_all
 Tag.delete_all
 
+nulltag = '00000000NULLTAG00000000'
+Tag.create(name: nulltag, mention: false)
+
 user1 = User.create(
   email: 'foobar@foobar.com',
   password: 'foobar',

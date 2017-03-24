@@ -15,16 +15,17 @@
   </ul>
 </nav>
 
-<main class="col-12">
-  <div class="filter-bar row">
-    <ul class="tag-filters">
+<div class="filter-bar row">
+  <ul class="tag-filters">
 
-    </ul>
-    <div class="time-filters col-sm-4 col-md-3 col-lg-2">
-      <p>time filters here</p>
-    </div>
+  </ul>
+  <div class="time-filters col-sm-4 col-md-3 col-lg-2">
+    <p>time filters here</p>
   </div>
-  <div class="notecards-container row">
+</div>
+
+<main class="row">
+  <div class="notecards-container">
 
   </div>
 </main>
@@ -35,6 +36,7 @@
     // key: tag_id, value: array of associated note_ids
     var tagNoteIds = {};
     $.get("/taggings").success(function(taggings) {
+      // if no one is signed in, return null
       taggings.forEach(function(tagging, i) {
         if (tagNoteIds[tagging.tag_id]) {
           tagNoteIds[tagging.tag_id].push(tagging.note_id);
@@ -120,12 +122,14 @@
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
       var noteCount = tagNoteIds[tag.id].length
-      var labelStr = prefix + tag.name + ' (' + noteCount + ')'
+      var nulltag = tag.name === '00000000NULLTAG00000000'
+      var labelStr = nulltag ? 'Untagged (' + noteCount + ')' : prefix + tag.name + ' (' + noteCount + ')';
       var liElement =
         '<li><div>' +
         '<label>' + labelStr + '</label>' +
         '<input class="toggle" type="checkbox" data-id="' + tag.id + '">' +
         '</div></li>';
+      if (nulltag) liElement += '<div class="untagged-divider" />';
       return liElement;
     }
 

@@ -62,7 +62,6 @@ label {
   border-right: 1px solid #eee;
 }
 
-/* Sidebar navigation */
 .sidebar {
   padding-left: 0;
   padding-right: 0;
@@ -70,14 +69,6 @@ label {
 
 .sidebar .nav {
   margin-bottom: 20px;
-}
-
-.sidebar .nav-item {
-  width: 100%;
-}
-
-.sidebar .nav-link {
-  border-radius: 0;
 }
 
 .sidebar label {
@@ -90,6 +81,10 @@ label {
   float: right;
 }
 
+.sidebar .untagged-divider {
+  height: 20px;
+}
+
 /*
  * Note filter bar
  */
@@ -97,6 +92,7 @@ label {
 .filter-bar {
   background-color: #DCEDC8;
   margin: 0 -15px 0 -15px;
+  // position: fixed;
 }
 
 .filter-bar li {
@@ -118,8 +114,8 @@ label {
  * Notes display
  */
 
-main {
-  padding: 0px;
+.notecards-container {
+  padding: 10px 20px 20px 20px;
 }
 
 .note-container {
