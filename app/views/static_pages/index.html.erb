@@ -41,6 +41,9 @@
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
       if (!tags) return null;
+
+      $('.untagged-filter').append
+
       var hashtagHtml = "";
       var mentionHtml = "";
       tags.forEach(function(tag, i) {
@@ -139,7 +142,7 @@
     // Creates an <li> element out of JSON data for tags
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
-      var labelStr = prefix + tag.name + ' (' + NaN + ')';
+      var labelStr = prefix + tag.name + ' (' + tag.count + ')';
       var liElement =
         '<li><div>' +
         '<label>' + labelStr + '</label>' +
