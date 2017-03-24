@@ -6,10 +6,6 @@
     <li class="nav-item clear-selected-tags">
       clear selected
     </li>
-    <li class="nav-item untagged-filter">
-      <label>Untagged</label>
-      <input class="toggle" type="checkbox" checked>
-    </li>
   </ul>
 
   <ul class="nav flex-column list-hashtags">
@@ -49,7 +45,6 @@
     });
 
     // populate sidebar with tags
-    var nulltagId = null;
     $.get("/tags").success(function(tags) {
       if (!tags) return null;
       var hashtagHtml = "";
@@ -89,23 +84,6 @@
       }
       populateNotes();
     });
-
-    // Filter untagged notes
-    $('.untagged-filter').click(function() {
-      if (nulltagId) {
-        var $checkbox = $(this).children('input');
-        if ($checkbox.prop('checked')) {
-          $checkbox.prop('checked', false);
-          filterTagIds.splice(filterTagIds.indexOf(nulltagId), 1);
-        } else {
-          $checkbox.prop('checked', true);
-          includeUntagged = true;
-        }
-        populateNotes();
-      } else {
-        // css to indicate no nulltag notes
-      }
-    })
 
     // Remove tag filters when clicking them on the filter-bar
     $('.tag-filters').on('click', 'li', function(){
