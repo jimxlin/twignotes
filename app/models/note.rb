@@ -12,6 +12,12 @@ class Note < ApplicationRecord
     hashtags = extract_hashtags(self.title) + extract_hashtags(self.body)
     mentions = extract_mentions(self.title) + extract_mentions(self.body)
 
+    if hashtags.empty && mentions.empty?
+      nulltag = '00000000NULLTAG00000000'
+      tag = Tag.all.find_by(name: nulltag)
+      tag ? self.tags << tag : self.tags.create(name: nulltag, mention: false)
+    end
+
     hashtags.each do |name|
       tag = self.user.tags.find_by(name: name, mention: false);
       tag ? self.tags << tag : self.tags.create(name: name, mention: false)
