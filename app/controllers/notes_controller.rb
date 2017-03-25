@@ -42,7 +42,7 @@ class NotesController < ApplicationController
         notes += current_user.notes.left_outer_joins(:taggings) # notes is now an array, no longer an AR object
           .where(taggings: { id: nil })
       end
-      
+
       notes
     end
   end

@@ -1,4 +1,4 @@
-<nav class="col-sm-3 col-md-2 bg-faded sidebar collapse" id="sidebar">
+<nav class="col-6 col-sm-3 col-md-3 col-lg-3 col-xl-2 bg-faded sidebar collapse" id="sidebar">
   <ul class="nav flex-column edit-notes">
     <li class="nav-item create-note">
       New Note +
@@ -20,10 +20,13 @@
 </nav>
 
 <div class="filter-bar row">
-  <ul class="tag-filters">
+  <div class="tag-filters col-6 col-sm-8 col-md-9 col-lg-9">
+    <ul>
+      <li id="note-counter"></li>
+    </ul>
+  </div>
 
-  </ul>
-  <div class="time-filters col-sm-4 col-md-3 col-lg-2">
+  <div class="time-filters col-6 col-sm-4 col-md-3 col-lg-3">
     <p>time filters here</p>
   </div>
 </div>
@@ -77,7 +80,7 @@
       } else {
         $checkbox.prop('checked', true);
         filterTagIds.push(tagId);
-        $('.tag-filters').append(filterBarHtml(tagName, tagId));
+        $('.tag-filters ul').append(filterBarHtml(tagName, tagId));
       }
       populateNotes(filterTagIds);
     });
@@ -96,7 +99,7 @@
       } else {
         $checkbox.prop('checked', true);
         filterTagIds.push(untagged);
-        $('.tag-filters').append('<li id="' + untagged + '">Untagged</li>');
+        $('.tag-filters ul').append('<li id="' + untagged + '">Untagged</li>');
       }
       populateNotes(filterTagIds);
     });
@@ -122,9 +125,12 @@
           notesHtml += noteHtml(note);
         });
         $('.notecards-container').append(notesHtml);
+
+        $('#note-counter').text(noteCounter());
       });
     }
 
+    // Creates a query string for the URL of the note get request
     function queryStr(tagIds) {
       var string = ""
       tagIds.forEach(function(tagId, i) {
@@ -137,6 +143,13 @@
     function filterBarHtml(tagName, tagId) {
       var tagHtml = '<li id="' + tagId + '">' + tagName + '</li>';
       return tagHtml;
+    }
+
+    // Creates note counter text for filter-bar
+    function noteCounter() {
+      var count = $('.notecard').length;
+      if (count === 1) return '1 note';
+      return String(count) + ' notes';
     }
 
     // Creates an <li> element out of JSON data for tags
