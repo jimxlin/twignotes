@@ -93,7 +93,7 @@ label {
   background-color: #DCEDC8;
   margin: 0;
   position: fixed;
-  height: 64px;
+  height: 36px;
   width: 100%;
   z-index: 500;
 }
@@ -108,7 +108,13 @@ label {
   cursor: pointer;
 }
 
+.tag-filters-container {
+  overflow-y: hidden;
+  height: 36px;
+}
+
 .tag-filters {
+  height: 52px;
   overflow-x: scroll;
   white-space: nowrap;
   border-right: solid;
@@ -116,8 +122,10 @@ label {
 
 .tag-filters ul {
   padding-left: 0px;
-  padding-top: 12px;
   margin-bottom: 0;
+}
+
+.tag-filters li {
 }
 
 

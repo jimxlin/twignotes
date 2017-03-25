@@ -3,7 +3,7 @@
     <li class="nav-item create-note">
       New Note +
     </li>
-    <li class="nav-item clear-selected-tags">
+    <li class="nav-item clear-tag-filters">
       clear selected
     </li>
     <li class="nav-item untagged-filter">
@@ -20,10 +20,12 @@
 </nav>
 
 <div class="filter-bar row">
-  <div class="tag-filters col-6 col-sm-8 col-md-9 col-lg-9">
-    <ul>
-      <li id="note-counter"></li>
-    </ul>
+  <div class="tag-filters-container col-6 col-sm-8 col-md-9 col-lg-9">
+    <div class="tag-filters">
+      <ul>
+        <li id="note-counter"></li>
+      </ul>
+    </div>
   </div>
 
   <div class="time-filters col-6 col-sm-4 col-md-3 col-lg-3">
@@ -62,7 +64,7 @@
 
     // Populate main window with notes
     var filterTagIds = [];
-    populateNotes(filterTagIds);
+    populateNotes();
 
     // Filter notes by tags in sidebar
     $('.sidebar').on('click','div',function(){
@@ -82,7 +84,7 @@
         filterTagIds.push(tagId);
         $('.tag-filters ul').append(filterBarHtml(tagName, tagId));
       }
-      populateNotes(filterTagIds);
+      populateNotes();
     });
 
     // Filter untagged notes
@@ -99,26 +101,34 @@
       } else {
         $checkbox.prop('checked', true);
         filterTagIds.push(untagged);
-        $('.tag-filters ul').append('<li id="' + untagged + '">Untagged</li>');
+        $('.tag-filters ul').append('<li class="li-filter" id="' + untagged + '">Untagged</li>');
       }
-      populateNotes(filterTagIds);
+      populateNotes();
+    });
+
+    // Clear all tag filters
+    $('.clear-tag-filters').click(function(){
+      filterTagIds = [];
+      $('.sidebar input').each(function() { $(this).prop('checked', false); });
+      $('.li-filter').remove();
+      populateNotes();
     });
 
     // Remove tag filters when clicking them on the filter-bar
-    $('.tag-filters').on('click', 'li', function(){
+    $('.tag-filters').on('click', '.li-filter', function(){
       var tagId = $(this).attr('id');
       $('[data-id=' + tagId + ']').prop('checked', false);
       filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
       $(this).remove();
 
-      populateNotes(filterTagIds);
+      populateNotes();
     });
 
 /*************************************************************************/
 
-    function populateNotes(tagIds) {
+    function populateNotes() {
       $('.note-container').remove();
-      $.get("/notes/filtered?"+queryStr(tagIds)).success(function(notes) {
+      $.get("/notes/filtered?"+queryStr(filterTagIds)).success(function(notes) {
         if (!notes) return null;
         var notesHtml = "";
         notes.forEach(function(note, i) {
@@ -141,7 +151,7 @@
 
     // Creates an <li> tag element for the filter-bar
     function filterBarHtml(tagName, tagId) {
-      var tagHtml = '<li id="' + tagId + '">' + tagName + '</li>';
+      var tagHtml = '<li class="li-filter" id="' + tagId + '">' + tagName + '</li>';
       return tagHtml;
     }
 
