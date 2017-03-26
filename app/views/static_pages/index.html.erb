@@ -206,7 +206,7 @@ $('.time-filters .time-interval').change(function() {
       return string.slice(0, -1);
     }
 
-    // sort and filter notes based on timeFilter options
+    // Sort and filter notes based on timeFilter options
     function sortNotes(notes) {
       var sortedNotes = [];
 
@@ -220,7 +220,7 @@ $('.time-filters .time-interval').change(function() {
           if (today - date <= interval) sortedNotes.push(note);
         });
       }
-      console.log(sortedNotes);
+
       sortedNotes.sort(function(a,b) {
         var dateA = new Date(a.updated_at);
         var dateB = new Date(b.updated_at);
@@ -239,11 +239,22 @@ $('.time-filters .time-interval').change(function() {
       var titleHtml = note.title ? '<p>' + note.title + '</p><hr />' : '';
       var divElement =
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
-        '<div class="notecard">' +
+        '<div class="notecard col-11">' +
         titleHtml +
         '<p>' + note.body + '</p>' +
         '</div></div>';
       return divElement;
+    }
+
+    // Get detailed view of note in a modal
+    $('.notecards-container').on('click','.notecard', function() {
+
+    })
+
+    // Create html for note modal
+    function noteModalHtml(note) {
+      modalHtml = '';
+
     }
   });
 </script>

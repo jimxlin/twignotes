@@ -31,10 +31,10 @@ class Note < ApplicationRecord
   end
 
   def extract_hashtags(str)
-    str.scan(/#\S+/).map {|tag| tag[1..-1]}.uniq
+    str ? str.scan(/#\S+/).map {|tag| tag[1..-1]}.uniq : []
   end
 
   def extract_mentions(str)
-    str.scan(/@\S+/).map {|tag| tag[1..-1]}.uniq
+    str ? str.scan(/@\S+/).map {|tag| tag[1..-1]}.uniq : []
   end
 end

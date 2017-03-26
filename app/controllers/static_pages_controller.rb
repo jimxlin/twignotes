@@ -1,6 +1,7 @@
 class StaticPagesController < ApplicationController
   def index
-    # note creation modal
-    @note = Note.new
+    unless current_user
+      redirect_to new_user_session_path
+    end
   end
 end
