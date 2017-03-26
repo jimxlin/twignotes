@@ -28,13 +28,17 @@
     </div>
   </div>
 
-  <div class="time-filters col-6 col-sm-4 col-md-3 col-lg-3">
-    <div class="col-6">
-
-    </div>
-    <div class="col-6">
-
-    </div>
+  <div class="time-filters col-6 col-sm-4 col-md-3 col-lg-3 row">
+      <select class="custom-select time-sort col-6">
+        <option value="newest">newest first</option>
+        <option value="oldest">oldest first</option>
+      </select>
+      <select class="custom-select time-interval col-6">
+        <option value="0">all time</option>
+        <option value="7">past week</option>
+        <option value="31">past month</option>
+        <option value="365">past year</option>
+      </select>
   </div>
 </div>
 
@@ -47,6 +51,8 @@
 <script>
   const untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
   $(function() {
+
+/***************************** Sidebar **********************************/
 
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
@@ -66,10 +72,6 @@
       $('.list-hashtags').append(hashtagHtml);
       $('.list-mentions').append(mentionHtml);
     });
-
-    // Populate main window with notes
-    var filterTagIds = []; // tag Ids of the filters in use
-    populateNotes();
 
     // Filter notes by tags in sidebar
     $('.sidebar').on('click','.tag-filter', function(){
@@ -105,7 +107,7 @@
       populateNotes();
     });
 
-    //
+    // Toggle highlighting of tag filters
     $('.sidebar ul').on('change', 'input', function() {
       if ($(this).prop('checked')) {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0.1)")
@@ -122,26 +124,71 @@
       populateNotes();
     });
 
-    // Remove tag filters when clicking them on the filter-bar
-    $('.tag-filters').on('click', '.li-filter', function(){
-      var tagId = $(this).attr('id');
-      $('[data-id=' + tagId + ']').prop('checked', false);
-      filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
-      $(this).remove();
+    // Creates a tag <li> for sidebar
+    function sidebarTagHtml(tag, mention) {
+      var prefix = mention ? '@' : '#';
+      var labelStr = prefix + tag.name + ' (' + tag.count + ')';
+      var liElement =
+        '<li><div class="tag-filter">' +
+        '<label>' + labelStr + '</label>' +
+        '<input class="toggle" type="checkbox" data-id="' + tag.id + '">' +
+        '</div></li>';
+      return liElement;
+    }
 
-      populateNotes();
-    });
+/***************************** Filterbar *******************************/
 
-/***************************** Notecards **************************************/
+// Remove tag filters when clicking them on the filter-bar
+$('.tag-filters').on('click', '.li-filter', function(){
+  var tagId = $(this).attr('id');
+  $('[data-id=' + tagId + ']').prop('checked', false);
+  filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
+  $(this).remove();
+
+  populateNotes();
+});
+
+// Creates note counter text for filter-bar
+function noteCounter() {
+  var count = $('.notecard').length;
+  if (count === 1) return '1 note';
+  return String(count) + ' notes';
+}
+
+// Creates an <li> tag element for the filter-bar
+function filterBarHtml(tagName, tagId) {
+  var tagHtml = '<li class="li-filter" id="' + tagId + '">' + tagName + '</li>';
+  return tagHtml;
+}
+
+// Sort notes by most recent or oldest
+$('.time-filters .time-sort').change(function() {
+  timeFilters.sort = $(this).val();
+  populateNotes();
+});
+
+// Filter notes by a time interval
+$('.time-filters .time-interval').change(function() {
+  timeFilters.interval = $(this).val();
+  populateNotes();
+});
+
+/**************************** Notes Display ***************************/
+
+    // Populate main window with notes
+    var filterTagIds = []; // tag Ids of the filters in use
+    var timeFilters = {sort: 'newest', interval: '0'}
+
+    populateNotes();
 
     // Adds notecard divs to the main window
     function populateNotes() {
       $('.note-container').remove();
       $.get("/notes/filtered?"+queryStr(filterTagIds)).success(function(notes) {
         if (!notes) return null;
-        // call sort notes function here
+        var sortedNotes = sortNotes(notes);
         var notesHtml = "";
-        notes.forEach(function(note, i) {
+        sortedNotes.forEach(function(note, i) {
           notesHtml += noteHtml(note);
         });
         $('.notecards-container').append(notesHtml);
@@ -159,8 +206,32 @@
       return string.slice(0, -1);
     }
 
+    // sort and filter notes based on timeFilter options
     function sortNotes(notes) {
+      var sortedNotes = [];
 
+      if (timeFilters.interval === '0') {
+        sortedNotes = notes;
+      } else {
+        notes.forEach(function(note, i) {
+          var today = new Date();
+          var date = new Date(note.updated_at);
+          var interval = Number(timeFilters.interval) * 8.64e7;
+          if (today - date <= interval) sortedNotes.push(note);
+        });
+      }
+      console.log(sortedNotes);
+      sortedNotes.sort(function(a,b) {
+        var dateA = new Date(a.updated_at);
+        var dateB = new Date(b.updated_at);
+        if (timeFilters.sort === 'newest') {
+          return dateA - dateB;
+        } else {
+          return dateB - dateA;
+        }
+      });
+
+      return sortedNotes;
     }
 
     // Creates a notecard <div>
@@ -173,33 +244,6 @@
         '<p>' + note.body + '</p>' +
         '</div></div>';
       return divElement;
-    }
-
-/************************* Sidebar and Filter-bar *****************************/
-
-    // Creates an <li> tag element for the filter-bar
-    function filterBarHtml(tagName, tagId) {
-      var tagHtml = '<li class="li-filter" id="' + tagId + '">' + tagName + '</li>';
-      return tagHtml;
-    }
-
-    // Creates note counter text for filter-bar
-    function noteCounter() {
-      var count = $('.notecard').length;
-      if (count === 1) return '1 note';
-      return String(count) + ' notes';
-    }
-
-    // Creates a tag <li> for sidebar
-    function sidebarTagHtml(tag, mention) {
-      var prefix = mention ? '@' : '#';
-      var labelStr = prefix + tag.name + ' (' + tag.count + ')';
-      var liElement =
-        '<li><div class="tag-filter">' +
-        '<label>' + labelStr + '</label>' +
-        '<input class="toggle" type="checkbox" data-id="' + tag.id + '">' +
-        '</div></li>';
-      return liElement;
     }
   });
 </script>

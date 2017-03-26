@@ -130,7 +130,18 @@ label {
 
 
 .time-filters {
+  margin: 0;
   padding: 0;
+}
+
+.sort-select, .filter-select {
+  margin: 0;
+  padding: 0;
+}
+
+.time-filters .custom-select {
+  border: none;
+  background-color: transparent;
 }
 
 /*
