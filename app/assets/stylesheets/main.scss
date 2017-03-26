@@ -77,8 +77,7 @@ label {
 }
 
 .sidebar input {
-  display: inline-block;
-  float: right;
+  display: none;
 }
 
 .sidebar .untagged-divider {
@@ -111,6 +110,7 @@ label {
 .tag-filters-container {
   overflow-y: hidden;
   height: 36px;
+  padding: 0;
 }
 
 .tag-filters {
@@ -130,7 +130,7 @@ label {
 
 
 .time-filters {
-  float: right;
+  padding: 0;
 }
 
 /*
@@ -138,7 +138,7 @@ label {
  */
 
 main.row{
-  margin: 64px 0px 0px 0px;
+  margin: 40px 0px 0px 0px;
 }
 
 .notecards-container {
