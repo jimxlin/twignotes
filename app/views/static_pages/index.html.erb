@@ -48,6 +48,29 @@
   </div>
 </main>
 
+
+<!-- View Note Modal -->
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="noteModalLabel">Note</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" style="margin-right: auto;">Archive</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Edit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
   $(function() {
@@ -233,25 +256,20 @@ $('.time-filters .time-interval').change(function() {
 
     // Creates a notecard <div>
     function noteHtml(note) {
-      var titleHtml = note.title ? '<p>' + note.title + '</p><hr />' : '';
+      var titleHtml = note.title ? '<p class="note-title">' + note.title + '</p><hr />' : '';
       var divElement =
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
         '<div class="notecard col-11">' +
         titleHtml +
-        '<p>' + note.body + '</p>' +
+        '<p class="note-body">' + note.body + '</p>' +
         '</div></div>';
       return divElement;
     }
 
     // Get detailed view of note in a modal
     $('.notecards-container').on('click','.notecard', function() {
-
-    })
-
-    // Create html for note modal
-    function noteModalHtml(note) {
-      modalHtml = '';
-
-    }
+      $('.modal-body').html( $(this).html() );
+      $('#noteModal').modal('toggle');
+    });
   });
 </script>

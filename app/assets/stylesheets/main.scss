@@ -3,10 +3,11 @@
 
 body {
   background-color: #FFCDD2;
+  padding: 0 !important;
 }
 
 /*
- * User forms
+ * User accounr forms
  */
 
 .card {
@@ -60,6 +61,10 @@ label {
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   border-right: 1px solid #eee;
+}
+
+.collapsing {
+  overflow: hidden;
 }
 
 .sidebar {
@@ -175,4 +180,12 @@ main.row{
   height: 200px;
   overflow: hidden;
   cursor: pointer;
+}
+
+.modal {
+  z-index: 3000;
+}
+
+.modal-content {
+  margin-top: 72px;
 }
