@@ -31,19 +31,19 @@ class NotesController < ApplicationController
 
   def filtered_notes(tags)
     if tags.nil?
-      current_user.notes
+      current_user.notes.unarchived
     else
-      notes = current_user.notes.joins(:taggings)
+      notes = current_user.notes.unarchived.joins(:taggings)
         .where(taggings: { tag_id: tags })
 
       # client requests untagged notes
       untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
       if tags.include?(untagged)
-        notes += current_user.notes.left_outer_joins(:taggings) # notes is now an array, no longer an AR object
+        notes += current_user.notes.left_outer_joins(:taggings)
           .where(taggings: { id: nil })
       end
 
-      notes
+      notes.to_a.uniq
     end
   end
 

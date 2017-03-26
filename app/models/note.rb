@@ -6,6 +6,9 @@ class Note < ApplicationRecord
   after_save :create_tags
   after_destroy :destroy_orphan_tags
 
+  scope :unarchived, -> { where(is_archived: false) }
+  scope :archived, -> { where(is_archived: true) }
+
   private
 
   def create_tags

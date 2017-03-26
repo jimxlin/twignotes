@@ -11,7 +11,7 @@ class TagsController < ApplicationController
 
   def tags_with_note_count
     current_user.tags.order(:name).distinct.map do |tag|
-      note_count = current_user.notes.joins(:taggings)
+      note_count = current_user.notes.unarchived.joins(:taggings)
         .where(taggings: { tag_id: tag.id }).count
 
       { id: tag.id, name: tag.name, mention: tag.mention, count: note_count }
