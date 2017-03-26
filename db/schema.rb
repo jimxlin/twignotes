@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170311031725) do
+ActiveRecord::Schema.define(version: 20170326103701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20170311031725) do
     t.integer  "tag_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["note_id", "tag_id"], name: "index_taggings_on_note_id_and_tag_id", unique: true, using: :btree
     t.index ["note_id"], name: "index_taggings_on_note_id", using: :btree
     t.index ["tag_id"], name: "index_taggings_on_tag_id", using: :btree
   end

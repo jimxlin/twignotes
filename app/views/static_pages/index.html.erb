@@ -57,9 +57,6 @@
     // populate sidebar with tags
     $.get("/tags").success(function(tags) {
       if (!tags) return null;
-
-      $('.untagged-filter').append
-
       var hashtagHtml = "";
       var mentionHtml = "";
       tags.forEach(function(tag, i) {
