@@ -15,6 +15,7 @@ class Note < ApplicationRecord
     hashtags = extract_hashtags(self.title) + extract_hashtags(self.body)
     mentions = extract_mentions(self.title) + extract_mentions(self.body)
 
+    # Prevent creating duplicate taggings during updates
     self.tags.each do |tag|
       hashtags.delete(tag.name)
       mentions.delete(tag.name)

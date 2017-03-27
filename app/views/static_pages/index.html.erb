@@ -64,7 +64,13 @@
         </button>
       </div>
       <div class="modal-body">
-        ...
+        <div class="form-title-container">
+          <textarea class="form-title" name="title"></textarea>
+        </div>
+        <hr />
+        <div class="form-body-container">
+          <textarea class="form-body" name="body"></textarea>
+        </div>
       </div>
       <div class="modal-footer">
       </div>
@@ -162,8 +168,6 @@
       } else {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0)")
       }
-      // populateFilterBar();
-      // populateNotes();
     });
 
     // Clear all tag filters
@@ -290,9 +294,9 @@ $('.time-filters .time-interval').change(function() {
         var dateA = new Date(a.updated_at);
         var dateB = new Date(b.updated_at);
         if (timeFilters.sort === 'newest') {
-          return dateA - dateB;
-        } else {
           return dateB - dateA;
+        } else {
+          return dateA - dateB;
         }
       });
 
@@ -307,18 +311,27 @@ $('.time-filters .time-interval').change(function() {
         '<div class="notecard col-11" data-id="' + note.id + '">' +
         titleHtml +
         '<p class="note-body">' + note.body + '</p>' +
+        '<div class="text-fader" />' +
         '</div></div>';
       return divElement;
     }
 
-    // Get detailed view of note in a modal
+    // Get form for note in a modal
     $('.notecards-container').on('click','.notecard', function() {
       var noteId = $(this).data('id');
-      console.log(noteId);
-      $('.modal-footer').html(modalButtonHtml(noteId));
-      $('.modal-body').html( $(this).html() );
+      var title = $(this).children('.note-title').text();
+      var body = $(this).children('.note-body').text();
+
+      $('.modal-footer').html( modalButtonHtml(noteId) );
+      noteFormHtml(noteId, title, body);
       $('#noteModal').modal('toggle');
     });
+
+    // Add html to note form
+    function noteFormHtml(noteId, titleText, bodyText) {
+      $('textarea.form-title').val(titleText);
+      $('textarea.form-body').val(bodyText);
+    }
 
     // Archive note
     $('.modal').on('click', '.btn-archive', function() {
@@ -326,6 +339,23 @@ $('.time-filters .time-interval').change(function() {
       $.post('notes/' + noteId, {
         _method: "PUT",
         note: { is_archived: true }
+      }).success(function() {
+        $('#noteModal').modal('toggle');
+        populateTags();
+        populateFilterBar();
+        populateNotes();
+      });
+    });
+
+    // Save changes to note
+    $('.modal').on('click', '.btn-save', function() {
+      var noteId = $(this).data("id");
+      var titleStr= $('.modal .form-title').val();
+      var bodyStr = $('.modal .form-body').val();
+
+      $.post('notes/' + noteId, {
+        _method: "PUT",
+        note: { title: titleStr, body: bodyStr }
       }).success(function() {
         $('#noteModal').modal('toggle');
         populateTags();
@@ -360,7 +390,7 @@ $('.time-filters .time-interval').change(function() {
         var str =
           '<button type="button" class="btn btn-warning btn-archive" style="margin-right: auto;" data-id="' + noteId + '">Archive</button>' +
           '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
-          '<button type="button" class="btn btn-primary btn-edit" data-id="' + noteId + '">Edit</button>'
+          '<button type="button" class="btn btn-primary btn-save" data-id="' + noteId + '">Save changes</button>'
         return str;
       }
     }
