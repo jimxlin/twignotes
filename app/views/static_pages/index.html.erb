@@ -3,12 +3,16 @@
     <li class="nav-item create-note">
       New Note +
     </li>
+    <li class="nav-item archive-mode">
+      <label>Archive Mode</label>
+      <input class="toggle" type="checkbox">
+    </li>
     <li class="nav-item clear-tag-filters">
       clear selected
     </li>
     <li class="nav-item untagged-filter">
       <label>Untagged</label>
-      <input class="toggle" type="checkbox" data-id='UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'>
+      <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
     </li>
   </ul>
 
@@ -63,35 +67,61 @@
         ...
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-warning" style="margin-right: auto;">Archive</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Edit</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
+  const UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
+  const ARCHIVED = 'ArchivedArchivedArchivedArchivedArchivedArchivedArchivedArchived';
   $(function() {
+
+    var filterTagIds = []; // tag Ids of the filters in use
+    var timeFilters = {sort: 'newest', interval: '0'}
 
 /***************************** Sidebar **********************************/
 
-    // populate sidebar with tags
-    $.get("/tags").success(function(tags) {
-      if (!tags) return null;
-      var hashtagHtml = "";
-      var mentionHtml = "";
-      tags.forEach(function(tag, i) {
-        if (tag.mention) {
-          mentionHtml += sidebarTagHtml(tag, true);
-        } else {
-          hashtagHtml += sidebarTagHtml(tag, false);
-        }
-      });
-      $('.list-hashtags').append(hashtagHtml);
-      $('.list-mentions').append(mentionHtml);
+    // Archive mode, only archived or unarchived notes shown
+    $('.sidebar .archive-mode').click(function() {
+      var $checkbox = $(this).children('input');
+
+      if ($checkbox.prop('checked')) {    // disable archive mode
+        $checkbox.prop('checked', false).change();
+        filterTagIds.splice(filterTagIds.indexOf(ARCHIVED), 1);
+      } else {                            // enable archive mode
+        $checkbox.prop('checked', true).change();
+        filterTagIds.push(ARCHIVED);
+      }
+      populateTags();
+      populateNotes();
     });
+
+    populateTags();
+
+    // populate sidebar with tags
+    function populateTags () {
+      $('.sidebar .list-hashtags li').remove();
+      $('.sidebar .list-mentions li').remove();
+
+      var archiveMode = filterTagIds.includes(ARCHIVED) ? 'true' : 'false';
+
+      $.get("/tags?archived=" + archiveMode).success(function(tags) {
+        if (!tags) return null;
+        var hashtagHtml = "";
+        var mentionHtml = "";
+        tags.forEach(function(tag, i) {
+          if (tag.count === 0) return;
+          if (tag.mention) {
+            mentionHtml += sidebarTagHtml(tag, true);
+          } else {
+            hashtagHtml += sidebarTagHtml(tag, false);
+          }
+        });
+        $('.list-hashtags').append(hashtagHtml);
+        $('.list-mentions').append(mentionHtml);
+      });
+    }
 
     // Filter notes by tags in sidebar
     $('.sidebar').on('click','.tag-filter', function(){
@@ -102,12 +132,11 @@
       if ($checkbox.prop('checked')) {    // Remove tag filter
         $checkbox.prop('checked', false).change();
         filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
-        $('.tag-filters #' + tagId).remove();
       } else {                            // Add tag filter
         $checkbox.prop('checked', true).change();
         filterTagIds.push(tagId);
-        $('.tag-filters ul').append(filterBarHtml(tagName, tagId));
       }
+      populateFilterBar();
       populateNotes();
     });
 
@@ -117,23 +146,24 @@
 
       if ($checkbox.prop('checked')) {    // Remove tag filter
         $checkbox.prop('checked', false).change();
-        filterTagIds.splice(filterTagIds.indexOf(untagged), 1);
-        $('.tag-filters #' + untagged).remove();
+        filterTagIds.splice(filterTagIds.indexOf(UNTAGGED), 1);
       } else {                            // Add tag filter
         $checkbox.prop('checked', true).change();
-        filterTagIds.push(untagged);
-        $('.tag-filters ul').append('<li class="li-filter" id="' + untagged + '">Untagged</li>');
+        filterTagIds.push(UNTAGGED);
       }
+      populateFilterBar();
       populateNotes();
     });
 
-    // Toggle highlighting of tag filters
+    // Toggle highlighting of tag filters and archive mode
     $('.sidebar ul').on('change', 'input', function() {
       if ($(this).prop('checked')) {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0.1)")
       } else {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0)")
       }
+      // populateFilterBar();
+      // populateNotes();
     });
 
     // Clear all tag filters
@@ -175,6 +205,24 @@ function noteCounter() {
   return String(count) + ' notes';
 }
 
+// Adds <li> elements to the filter-bar
+function populateFilterBar() {
+  $('.filter-bar .li-filter').remove();
+
+  $('.sidebar .tag-filter, .sidebar .untagged-filter').each(function(){
+    var $checkbox = $(this).children('input');
+    if (!$checkbox.prop('checked')) return;
+
+    var tagId = $checkbox.data('id');
+    var tagName = $(this).children('label').text();
+    if (tagId === UNTAGGED) {
+      $('.filter-bar ul').append('<li class="li-filter" id="' + UNTAGGED + '">Untagged</li>');
+    } else {
+      $('.filter-bar ul').append(filterBarHtml(tagName, tagId));
+    }
+  });
+}
+
 // Creates an <li> tag element for the filter-bar
 function filterBarHtml(tagName, tagId) {
   var tagHtml = '<li class="li-filter" id="' + tagId + '">' + tagName + '</li>';
@@ -196,9 +244,6 @@ $('.time-filters .time-interval').change(function() {
 /**************************** Notes Display ***************************/
 
     // Populate main window with notes
-    var filterTagIds = []; // tag Ids of the filters in use
-    var timeFilters = {sort: 'newest', interval: '0'}
-
     populateNotes();
 
     // Adds notecard divs to the main window
@@ -259,7 +304,7 @@ $('.time-filters .time-interval').change(function() {
       var titleHtml = note.title ? '<p class="note-title">' + note.title + '</p><hr />' : '';
       var divElement =
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
-        '<div class="notecard col-11">' +
+        '<div class="notecard col-11" data-id="' + note.id + '">' +
         titleHtml +
         '<p class="note-body">' + note.body + '</p>' +
         '</div></div>';
@@ -268,8 +313,56 @@ $('.time-filters .time-interval').change(function() {
 
     // Get detailed view of note in a modal
     $('.notecards-container').on('click','.notecard', function() {
+      var noteId = $(this).data('id');
+      console.log(noteId);
+      $('.modal-footer').html(modalButtonHtml(noteId));
       $('.modal-body').html( $(this).html() );
       $('#noteModal').modal('toggle');
     });
+
+    // Archive note
+    $('.modal').on('click', '.btn-archive', function() {
+      var noteId = $(this).data("id");
+      $.post('notes/' + noteId, {
+        _method: "PUT",
+        note: { is_archived: true }
+      }).success(function() {
+        $('#noteModal').modal('toggle');
+        populateTags();
+        populateFilterBar();
+        populateNotes();
+      });
+    });
+
+    // Restore note
+    $('.modal').on('click', '.btn-restore', function() {
+      var noteId = $(this).data("id");
+      $.post('notes/' + noteId, {
+        _method: "PUT",
+        note: { is_archived: false }
+      }).success(function() {
+        $('#noteModal').modal('toggle');
+        populateTags();
+        populateFilterBar();
+        populateNotes();
+      });
+    });
+
+    // Change modal buttons depending on archive mode
+    function modalButtonHtml(noteId) {
+      if (filterTagIds.includes(ARCHIVED)) {
+        var str =
+          '<button type="button" class="btn btn-danger btn-delete" style="margin-right: auto;" data-id="' + noteId + '">Delete</button>' +
+          '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
+          '<button type="button" class="btn btn-primary btn-restore" data-id="' + noteId + '">Restore</button>'
+        return str;
+      } else {
+        var str =
+          '<button type="button" class="btn btn-warning btn-archive" style="margin-right: auto;" data-id="' + noteId + '">Archive</button>' +
+          '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
+          '<button type="button" class="btn btn-primary btn-edit" data-id="' + noteId + '">Edit</button>'
+        return str;
+      }
+    }
   });
 </script>

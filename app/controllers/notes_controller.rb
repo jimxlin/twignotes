@@ -29,18 +29,28 @@ class NotesController < ApplicationController
 
   private
 
+  ARCHIVED = 'ArchivedArchivedArchivedArchivedArchivedArchivedArchivedArchived'
+  UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
+
   def filtered_notes(tags)
+
     if tags.nil?
       current_user.notes.unarchived
+    elsif tags == [ARCHIVED]
+      current_user.notes.archived
     else
-      notes = current_user.notes.unarchived.joins(:taggings)
+      notes = current_user.notes
+      # is client in archive mode?
+      notes = tags.include?(ARCHIVED) ? notes.archived : notes.unarchived
+      notes = notes.joins(:taggings)
         .where(taggings: { tag_id: tags })
 
       # client requests untagged notes
-      untagged = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
-      if tags.include?(untagged)
-        notes += current_user.notes.left_outer_joins(:taggings)
+      if tags.include?(UNTAGGED)
+        untagged_notes = current_user.notes.left_outer_joins(:taggings)
           .where(taggings: { id: nil })
+        untagged_notes = tags.include?(ARCHIVED) ? untagged_notes.archived : untagged_notes.unarchived
+        notes += untagged_notes
       end
 
       notes.to_a.uniq
@@ -48,6 +58,6 @@ class NotesController < ApplicationController
   end
 
   def note_params
-    params.require(:note).permit(:title, :body)
+    params.require(:note).permit(:title, :body, :is_archived)
   end
 end

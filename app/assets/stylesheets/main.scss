@@ -54,12 +54,12 @@ label {
 .sidebar {
   position: fixed;
   top: 56px;
-  bottom: 0;
   left: 0;
+  bottom: 0;
   padding-top: 20px;
   z-index: 1000;
   overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  overflow-y: auto;
   border-right: 1px solid #eee;
 }
 
@@ -78,9 +78,10 @@ label {
 
 .sidebar label {
   display: inline-block;
-  font-size: 14px;
+  font-size: 16px;
   margin: 0;
   padding: 4px 4px 4px 8px;
+  white-space: nowrap;
 }
 
 .sidebar input {

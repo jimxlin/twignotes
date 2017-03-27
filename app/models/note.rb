@@ -15,6 +15,11 @@ class Note < ApplicationRecord
     hashtags = extract_hashtags(self.title) + extract_hashtags(self.body)
     mentions = extract_mentions(self.title) + extract_mentions(self.body)
 
+    self.tags.each do |tag|
+      hashtags.delete(tag.name)
+      mentions.delete(tag.name)
+    end
+
     hashtags.each do |name|
       tag = self.user.tags.find_by(name: name, mention: false);
       tag ? self.tags << tag : self.tags.create(name: name, mention: false)
