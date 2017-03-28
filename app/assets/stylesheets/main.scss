@@ -61,6 +61,7 @@ label {
   overflow-x: hidden;
   overflow-y: auto;
   border-right: 1px solid #eee;
+  user-select: none;
 }
 
 .collapsing {
@@ -74,6 +75,10 @@ label {
 
 .sidebar .nav {
   margin-bottom: 20px;
+}
+
+.sidebar li, .sidebar li * {
+  cursor: pointer;
 }
 
 .sidebar label {
@@ -103,6 +108,16 @@ label {
   height: 36px;
   width: 100%;
   z-index: 500;
+}
+
+.filter-bar div {
+  padding: 0;
+  margin: 0;
+}
+
+.filter-bar .note-counter {
+  border-right: solid;
+  text-align: center;
 }
 
 .filter-bar li {
@@ -197,6 +212,10 @@ main.row{
 
 .modal {
   z-index: 3000;
+}
+
+.modal .btn {
+  cursor: pointer;
 }
 
 .modal-content {

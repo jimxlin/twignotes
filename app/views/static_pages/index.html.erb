@@ -24,10 +24,11 @@
 </nav>
 
 <div class="filter-bar row">
-  <div class="tag-filters-container col-6 col-sm-8 col-md-9 col-lg-9">
-    <div class="tag-filters">
+  <div class="tag-filters-container col-6 col-sm-8 col-md-9 col-lg-9 row">
+    <div class="note-counter col-6 col-sm-3 col-md-2 col-lg-2 col-xl-1">
+    </div>
+    <div class="tag-filters col-6 col-sm-9 col-md-10 col-lg-10 col-xl-11">
       <ul>
-        <li id="note-counter"></li>
       </ul>
     </div>
   </div>
@@ -260,7 +261,7 @@ $('.time-filters .time-interval').change(function() {
         });
         $('.notecards-container').append(notesHtml);
 
-        $('#note-counter').text(noteCounter());
+        $('.note-counter').text(noteCounter());
       });
     }
 
@@ -289,8 +290,8 @@ $('.time-filters .time-interval').change(function() {
       }
 
       sortedNotes.sort(function(a,b) {
-        var dateA = new Date(a.updated_at);
-        var dateB = new Date(b.updated_at);
+        var dateA = new Date(a.created_at);
+        var dateB = new Date(b.created_at);
         if (timeFilters.sort === 'newest') {
           return dateB - dateA;
         } else {

@@ -15,8 +15,14 @@ class NotesController < ApplicationController
   end
 
   def update
+    # Do note update timestamps for archiving / unarchiving
+    archive_change = params[:note][:is_archived] ? true : false
+    Note.record_timestamps = false if archive_change
+
     note = Note.find(params[:id])
     note.update_attributes(note_params)
+    
+    Note.record_timestamps = true if archive_change
     render json: note
   end
 
