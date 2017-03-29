@@ -3,7 +3,7 @@
 
 body {
   background-color: #FFCDD2;
-  padding: 0 !important;
+  overflow-x: hidden;
 }
 
 /*
@@ -105,9 +105,9 @@ label {
 .filter-bar {
   background-color: #DCEDC8;
   margin: 0;
-  position: fixed;
+  position: sticky;
+  top: 58px;
   height: 36px;
-  width: 100%;
   z-index: 500;
 }
 
@@ -173,7 +173,7 @@ label {
  */
 
 main.row{
-  margin: 40px 0px 0px 0px;
+  margin: 10px 0px 0px 0px;
 }
 
 .notecards-container {

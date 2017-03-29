@@ -59,11 +59,11 @@
     <div class="modal-content">
       <div class="modal-body">
         <div class="form-title-container">
-          <input type="text" class="form-title">
+          <input type="text" class="form-title" placeholder="Title">
         </div>
         <hr />
         <div class="form-body-container">
-          <textarea class="form-body"></textarea>
+          <textarea class="form-body" placeholder="Body"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -326,21 +326,8 @@ $('.time-filters .time-interval').change(function() {
 
     // Add html to note form
     function noteFormHtml(noteId, titleText, bodyText) {
-      if (titleText.length === 0) {
-        $('.form-title').val('');
-        $('.form-title').attr('placeholder','Title');
-      } else {
-        $('.form-title').val(titleText);
-      }
-      if (bodyText.length === 0) {
-        $('.form-body').val('');
-        $('.form-body').attr('placeholder','Body');
-      } else {
-        $('.form-body').val(bodyText);
-      }
-
-      // $('.form-title').val(titleText);
-      // $('.form-body').val(bodyText);
+      $('.form-title').val(titleText);
+      $('.form-body').val(bodyText);
     }
 
     // Archive note
@@ -406,7 +393,7 @@ $('.time-filters .time-interval').change(function() {
         var str =
           '<button type="button" class="btn btn-warning btn-archive" style="margin-right: auto;" data-id="' + noteId + '">Archive</button>' +
           '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
-          '<button type="button" class="btn btn-primary btn-save" data-id="' + noteId + '">Save changes</button>'
+          '<button type="button" class="btn btn-primary btn-save" data-id="' + noteId + '">Save</button>'
         return str;
       }
     }
