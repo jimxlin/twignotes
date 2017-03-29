@@ -12,23 +12,23 @@ class Note < ApplicationRecord
   private
 
   def create_tags
-    hashtags = extract_hashtags(self.title) + extract_hashtags(self.body)
-    mentions = extract_mentions(self.title) + extract_mentions(self.body)
+    hashtags = extract_hashtags(title) + extract_hashtags(body)
+    mentions = extract_mentions(title) + extract_mentions(body)
 
     # Prevent creating duplicate taggings during updates
-    self.tags.each do |tag|
+    user.tags.each do |tag|
       hashtags.delete(tag.name)
       mentions.delete(tag.name)
     end
 
     hashtags.each do |name|
-      tag = self.user.tags.find_by(name: name, mention: false);
-      tag ? self.tags << tag : self.tags.create(name: name, mention: false)
+      tag = user.tags.find_by(name: name, mention: false);
+      tag ? tags << tag : a = tags.create(name: name, mention: false, user_id: user.id)
     end
 
     mentions.each do |name|
-      tag = self.user.tags.find_by(name: name, mention: true)
-      tag ? self.tags << tag : self.tags.create!(name: name, mention: true)
+      tag = user.tags.find_by(name: name, mention: true)
+      tag ? tags << tag : tags.create(name: name, mention: true, user_id: user.id)
     end
   end
 

@@ -18,9 +18,8 @@ RSpec.describe Note, type: :model do
       it "creates new tags when a note is created with new tags" do
         @note = @user.notes.create(
           title: '#hashtag1 @mention1 foobar',
-          body: '#hashtag2 @mention2 foobar'
+          body: '#hashtag2 @mention2 foobar',
         )
-
         expect(Tag.find_by(name: 'hashtag1', mention: false)).to be
         expect(Tag.find_by(name: 'hashtag2', mention: false)).to be
         expect(Tag.find_by(name: 'mention1', mention: true)).to be

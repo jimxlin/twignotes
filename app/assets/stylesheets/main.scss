@@ -3,7 +3,7 @@
 
 body {
   background-color: #FFCDD2;
-  overflow-x: hidden;
+  padding: 0 !important;
 }
 
 /*
@@ -58,7 +58,7 @@ label {
 
 .sidebar {
   position: fixed;
-  top: 56px;
+  top: 58px;
   left: 0;
   bottom: 0;
   padding-top: 20px;
