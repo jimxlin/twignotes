@@ -1,7 +1,4 @@
-User.delete_all
-Note.delete_all
-Tagging.delete_all
-Tag.delete_all
+DatabaseCleaner.clean_with(:truncation)
 
 user1 = User.create(
   email: 'foobar@foobar.com',

@@ -1,7 +1,7 @@
 class NotesController < ApplicationController
   before_action :authenticate_user!, only: [:create, :update, :destroy]
 
-  def filtered_index
+  def index
     if current_user
       render json: filtered_notes(params[:tags])
     else
@@ -21,7 +21,7 @@ class NotesController < ApplicationController
 
     note = Note.find(params[:id])
     note.update_attributes(note_params)
-    
+
     Note.record_timestamps = true if archive_change
     render json: note
   end
@@ -46,6 +46,7 @@ class NotesController < ApplicationController
       current_user.notes.archived
     else
       notes = current_user.notes
+
       # is client in archive mode?
       notes = tags.include?(ARCHIVED) ? notes.archived : notes.unarchived
       notes = notes.joins(:taggings)

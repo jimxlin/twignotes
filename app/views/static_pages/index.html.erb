@@ -250,7 +250,7 @@ $('.time-filters .time-interval').change(function() {
       $('body').css("background-color","#FFCDD2")
       if (filterTagIds.includes(ARCHIVED)) $('body').css("background-color","#FFE57F");
 
-      $.get("/notes/filtered?"+queryStr(filterTagIds)).success(function(notes) {
+      $.get("/notes?"+queryStr(filterTagIds)).success(function(notes) {
         if (!notes) return null;
         var sortedNotes = sortNotes(notes);
         var notesHtml = "";
