@@ -46,8 +46,8 @@
   </div>
 </div>
 
-<main class="row">
-  <div class="notecards-container">
+<main>
+  <div class="notecards-container row">
 
   </div>
 </main>
@@ -111,7 +111,7 @@
         var hashtagHtml = "";
         var mentionHtml = "";
         tags.forEach(function(tag, i) {
-          if (tag.count === 0) return;
+          if (tag.note_count === 0) return;
           if (tag.mention) {
             mentionHtml += sidebarTagHtml(tag, true);
           } else {
@@ -175,7 +175,7 @@
     // Creates a tag <li> for sidebar
     function sidebarTagHtml(tag, mention) {
       var prefix = mention ? '@' : '#';
-      var labelStr = prefix + tag.name + ' (' + tag.count + ')';
+      var labelStr = prefix + tag.name + ' (' + tag.note_count + ')';
       var liElement =
         '<li><div class="tag-filter">' +
         '<label>' + labelStr + '</label>' +
@@ -196,7 +196,7 @@ $('.tag-filters').on('click', '.li-filter', function(){
   populateNotes();
 });
 
-// Creates note counter text for filter-bar
+// Creates note counter
 function noteCounter() {
   var count = $('.notecard').length;
   if (count === 1) return '1 note';
