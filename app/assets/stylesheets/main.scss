@@ -2,7 +2,6 @@
 @import "font-awesome";
 
 body {
-  background-color: #FFCDD2;
   padding: 0 !important;
   -webkit-overflow-scrolling: touch;
 }
@@ -166,6 +165,7 @@ label {
  */
 
 .notecards-container {
+  background-color: #FFCDD2;
   padding: 10px 0px 10px 20px;
   margin: 0;
 }
