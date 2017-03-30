@@ -4,7 +4,6 @@ class Note < ApplicationRecord
   has_many :tags, through: :taggings, dependent: :destroy
 
   after_save :create_tags
-  after_destroy :destroy_orphan_tags
 
   scope :unarchived, -> { where(is_archived: false) }
   scope :archived, -> { where(is_archived: true) }
@@ -31,14 +30,7 @@ class Note < ApplicationRecord
       tag ? tags << tag : tags.create(name: name, mention: true, user_id: user.id)
     end
   end
-
-  # takes too long?
-  #   before_destroy: check tags
-  # use def destroy ... super... end
-  def destroy_orphan_tags
-    Tag.all.each { |tag| tag.delete if tag.notes.empty? }
-  end
-
+  
   def extract_hashtags(str)
     str ? str.scan(/#\S+/).map {|tag| tag[1..-1]}.uniq : []
   end

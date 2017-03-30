@@ -29,7 +29,7 @@
 
 <!-- Sidebar Modal -->
 <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
       <div class="modal-body">
 
@@ -209,15 +209,16 @@
       if ($checkbox.prop('checked')) {    // disable archive mode
         $checkbox.prop('checked', false);
         $button.addClass("active");
-        filterTagIds.splice(filterTagIds.indexOf(ARCHIVED), 1);
+        filterTagIds = [];
       } else {                            // enable archive mode
         $checkbox.prop('checked', true);
         $button.removeClass("active");
-        filterTagIds.push(ARCHIVED);
+        filterTagIds = [ARCHIVED];
       }
       populateTags();
       populateNotes();
-      populateFilterBar()
+      populateFilterBar();
+      $('#crudNotesModal').modal('toggle');
     });
 
 /**********************************************************************/
@@ -237,7 +238,6 @@ $('.tag-filters').on('click', '.li-filter', function(){
 // Creates note counter
 function noteCounter() {
   var count = $('.notecard').length;
-  if (count === 1) return '1 note';
   return String(count);
 }
 
@@ -355,7 +355,6 @@ $('.time-filters .time-interval').change(function() {
 
     // Get form for note in a modal
     $('.notecards-container').on('click','.notecard', function(){
-      console.log("clicked!")
       var noteId = $(this).data('id');
       var title = $(this).children('.note-title').text();
       var body = $(this).children('.note-body').text();
@@ -377,6 +376,20 @@ $('.time-filters .time-interval').change(function() {
       $.post('notes/' + noteId, {
         _method: "PUT",
         note: { is_archived: true }
+      }).success(function() {
+        $('#noteModal').modal('toggle');
+        populateTags();
+        populateFilterBar();
+        populateNotes();
+      });
+    });
+
+    // Delete note
+    $('.modal').on('click', '.btn-delete', function() {
+      var noteId = $(this).data("id");
+      $.ajax({
+        type: "DELETE",
+        url: 'notes/' + noteId
       }).success(function() {
         $('#noteModal').modal('toggle');
         populateTags();
