@@ -1,28 +1,3 @@
-<nav class="col-6 col-sm-3 col-md-3 col-lg-3 col-xl-2 bg-faded sidebar collapse" id="sidebar">
-  <ul class="nav flex-column edit-notes">
-    <li class="nav-item create-note">
-      New Note +
-    </li>
-    <li class="nav-item archive-mode">
-      <label>Archive Mode</label>
-      <input class="toggle" type="checkbox">
-    </li>
-    <li class="nav-item clear-tag-filters">
-      clear selected
-    </li>
-    <li class="nav-item untagged-filter">
-      <label>Untagged</label>
-      <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
-    </li>
-  </ul>
-
-  <ul class="nav flex-column list-hashtags">
-  </ul>
-
-  <ul class="nav flex-column list-mentions">
-  </ul>
-</nav>
-
 <div class="filter-bar row">
   <div class="tag-filters-container col-6 col-sm-8 col-md-9 col-lg-9">
 
@@ -52,6 +27,46 @@
   </div>
 </main>
 
+<!-- Sidebar Modal -->
+<div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+
+        <ul class="nav flex-column">
+          <li class="nav-item clear-tag-filters">
+            clear selected
+          </li>
+          <li class="nav-item untagged-filter">
+            <label>=untagged</label>
+            <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
+          </li>
+        </ul>
+
+        <ul class="nav flex-column list-hashtags">
+        </ul>
+
+        <ul class="nav flex-column list-mentions">
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CRUD Notes Modal -->
+<div class="modal fade" id="crudNotesModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <button class="btn btn-primary">New Note</button><br />
+        <div class="btn-group crud-notes archive-mode" data-toggle="buttons">
+          <label class="btn btn-warning">Archive Mode</label>
+          <input class="toggle" type="checkbox">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- View Note Modal -->
 <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
@@ -80,29 +95,21 @@
     var filterTagIds = []; // tag Ids of the filters in use
     var timeFilters = {sort: 'newest', interval: '0'}
 
-/***************************** Sidebar **********************************/
+/**********************************************************************/
+/***************************** Sidebar modal **************************/
+/**********************************************************************/
 
-    // Archive mode, only archived or unarchived notes shown
-    $('.sidebar .archive-mode').click(function() {
-      var $checkbox = $(this).children('input');
-
-      if ($checkbox.prop('checked')) {    // disable archive mode
-        $checkbox.prop('checked', false).change();
-        filterTagIds.splice(filterTagIds.indexOf(ARCHIVED), 1);
-      } else {                            // enable archive mode
-        $checkbox.prop('checked', true).change();
-        filterTagIds.push(ARCHIVED);
-      }
-      populateTags();
-      populateNotes();
+    // Toggle sidebar modal
+    $('.brand .twag').click(function() {
+      $('#tagModal').modal('toggle');
     });
 
     populateTags();
 
     // populate sidebar with tags
     function populateTags () {
-      $('.sidebar .list-hashtags li').remove();
-      $('.sidebar .list-mentions li').remove();
+      $('#tagModal .list-hashtags li').remove();
+      $('#tagModal .list-mentions li').remove();
 
       var archiveMode = filterTagIds.includes(ARCHIVED) ? 'true' : 'false';
 
@@ -124,7 +131,7 @@
     }
 
     // Filter notes by tags in sidebar
-    $('.sidebar').on('click','.tag-filter', function(){
+    $('#tagModal').on('click','.tag-filter', function(){
       var $checkbox = $(this).children('input');
       var tagId = $checkbox.data('id');
       var tagName = $(this).children('label').text();
@@ -141,7 +148,7 @@
     });
 
     // Filter untagged notes
-    $('.sidebar .untagged-filter').click(function(){
+    $('#tagModal .untagged-filter').click(function(){
       var $checkbox = $(this).children('input');
 
       if ($checkbox.prop('checked')) {    // Remove tag filter
@@ -156,7 +163,7 @@
     });
 
     // Toggle highlighting of tag filters and archive mode
-    $('.sidebar ul').on('change', 'input', function() {
+    $('#tagModal ul').on('change', 'input', function() {
       if ($(this).prop('checked')) {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0.1)")
       } else {
@@ -166,8 +173,9 @@
 
     // Clear all tag filters
     $('.clear-tag-filters').click(function(){
+      if (filterTagIds.length === 0) return;
       filterTagIds = [];
-      $('.sidebar input').each(function() { $(this).prop('checked', false).change(); });
+      $('#tagModal input').each(function() { $(this).prop('checked', false).change(); });
       $('.li-filter').remove();
       populateNotes();
     });
@@ -184,7 +192,37 @@
       return liElement;
     }
 
-/***************************** Filterbar *******************************/
+/**********************************************************************/
+/***************************** CRUD modal *****************************/
+/**********************************************************************/
+
+    // Toggle CRUD-notes modal
+    $('.brand .notes-btn').click(function() {
+      $('#crudNotesModal').modal('toggle');
+    });
+
+    // Archive mode, only archived or unarchived notes shown
+    $('#crudNotesModal .archive-mode').click(function() {
+      var $checkbox = $(this).children('input');
+      var $button = $(this).children('label');
+
+      if ($checkbox.prop('checked')) {    // disable archive mode
+        $checkbox.prop('checked', false);
+        $button.addClass("active");
+        filterTagIds.splice(filterTagIds.indexOf(ARCHIVED), 1);
+      } else {                            // enable archive mode
+        $checkbox.prop('checked', true);
+        $button.removeClass("active");
+        filterTagIds.push(ARCHIVED);
+      }
+      populateTags();
+      populateNotes();
+      populateFilterBar()
+    });
+
+/**********************************************************************/
+/***************************** Filterbar ******************************/
+/**********************************************************************/
 
 // Remove tag filters when clicking them on the filter-bar
 $('.tag-filters').on('click', '.li-filter', function(){
@@ -207,7 +245,7 @@ function noteCounter() {
 function populateFilterBar() {
   $('.filter-bar .li-filter').remove();
 
-  $('.sidebar .tag-filter, .sidebar .untagged-filter').each(function(){
+  $('#tagModal .tag-filter, #tagModal .untagged-filter').each(function(){
     var $checkbox = $(this).children('input');
     if (!$checkbox.prop('checked')) return;
 
@@ -239,7 +277,9 @@ $('.time-filters .time-interval').change(function() {
   populateNotes();
 });
 
+/**********************************************************************/
 /**************************** Notes Display ***************************/
+/**********************************************************************/
 
     // Populate main window with notes
     populateNotes();
@@ -248,7 +288,10 @@ $('.time-filters .time-interval').change(function() {
     function populateNotes() {
       $('.note-container').remove();
       $('body').css("background-color","#FFCDD2")
-      if (filterTagIds.includes(ARCHIVED)) $('body').css("background-color","#FFE57F");
+      if (filterTagIds.includes(ARCHIVED)) {
+        $('body').css("background-color","#FFE57F");
+        // TODO add button to empty archive
+      }
 
       $.get("/notes?"+queryStr(filterTagIds)).success(function(notes) {
         if (!notes) return null;
@@ -258,7 +301,6 @@ $('.time-filters .time-interval').change(function() {
           notesHtml += noteHtml(note);
         });
         $('.notecards-container').append(notesHtml);
-
         $('.brand .note-count').text('(' + noteCounter() + ')');
       });
     }
@@ -286,7 +328,6 @@ $('.time-filters .time-interval').change(function() {
           if (today - date <= interval) sortedNotes.push(note);
         });
       }
-
       sortedNotes.sort(function(a,b) {
         var dateA = new Date(a.created_at);
         var dateB = new Date(b.created_at);
@@ -296,7 +337,6 @@ $('.time-filters .time-interval').change(function() {
           return dateA - dateB;
         }
       });
-
       return sortedNotes;
     }
 
@@ -314,12 +354,13 @@ $('.time-filters .time-interval').change(function() {
     }
 
     // Get form for note in a modal
-    $('.notecards-container').on('click','.notecard', function() {
+    $('.notecards-container').on('click','.notecard', function(){
+      console.log("clicked!")
       var noteId = $(this).data('id');
       var title = $(this).children('.note-title').text();
       var body = $(this).children('.note-body').text();
 
-      $('.modal-footer').html( modalButtonHtml(noteId) );
+      $('#noteModal .modal-footer').html( modalButtonHtml(noteId) );
       noteFormHtml(noteId, title, body);
       $('#noteModal').modal('toggle');
     });
@@ -355,7 +396,6 @@ $('.time-filters .time-interval').change(function() {
         alert("Can't save a blank note.")
         return;
       }
-
       $.post('notes/' + noteId, {
         _method: "PUT",
         note: { title: titleStr, body: bodyStr }
