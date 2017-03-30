@@ -192,12 +192,8 @@ label {
 }
 
 /*
- * Note form
+ * Note form modal
  */
-
-.modal {
-
-}
 
 .modal-content {
   margin-top: 72px;
@@ -220,4 +216,9 @@ label {
 
 .modal .form-body-container {
   height: 256px;
+}
+
+.modal .form-time-container {
+  font-size: 14px;
+  color: #999;
 }

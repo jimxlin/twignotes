@@ -44,16 +44,16 @@ seed_notes = lambda do |user, amount|
   l = notes.length
   day = 86400
   notes[0...l/4].each do |note|
-    note.update(created_at: note.created_at - 6*day, updated_at: note.updated_at - 6*day)
+    note.update!(created_at: note.created_at - rand(0..6)*day, updated_at: note.updated_at - 6*day)
   end
   notes[l/4...l*2/4].each do |note|
-    note.update(created_at: note.created_at - 30*day, updated_at: note.updated_at - 30*day)
+    note.update!(created_at: note.created_at - rand(14..30)*day, updated_at: note.updated_at - 30*day)
   end
   notes[l*2/4...l*3/4].each do |note|
-    note.update(created_at: note.created_at - 364*day, updated_at: note.updated_at - 364*day)
+    note.update!(created_at: note.created_at - rand(180..364)*day, updated_at: note.updated_at - 364*day)
   end
   notes[l*3/4..-1].each do |note|
-    note.update(created_at: note.created_at - 400*day, updated_at: note.updated_at - 400*day)
+    note.update!(created_at: note.created_at - rand(400..500)*day, updated_at: note.updated_at - 400*day)
   end
 end
 

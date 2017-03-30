@@ -15,7 +15,7 @@ class NotesController < ApplicationController
   end
 
   def update
-    # Do note update timestamps for archiving / unarchiving
+    # Don't update timestamps for archiving / unarchiving
     archive_change = params[:note][:is_archived] ? true : false
     Note.record_timestamps = false if archive_change
 
