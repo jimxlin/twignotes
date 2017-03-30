@@ -4,6 +4,7 @@
 body {
   background-color: #FFCDD2;
   padding: 0 !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 input.toggle {
@@ -30,6 +31,7 @@ input.toggle {
 label {
   display: block;
   font-size: 18px;
+  white-space: nowrap;
 }
 
 .card input {
@@ -71,14 +73,18 @@ label {
   margin-left: 10px;
 }
 
-.sidebar-modal label {
+#tagModal .modal-body {
+  overflow-x: hidden;
+}
+
+#tagModal label {
   display: inline-block;
   font-size: 16px;
   margin: 0;
   padding: 4px 4px 4px 8px;
 }
 
-.sidebar-modal input {
+#tagModal input {
   display: none;
 }
 

@@ -14,18 +14,9 @@ class Note < ApplicationRecord
     hashtags = (extract_hashtags(title) + extract_hashtags(body)).uniq
     mentions = (extract_mentions(title) + extract_mentions(body)).uniq
 
-    # Prevent creating duplicate taggings during updates
-    # p '==================================='
-    # p hashtags
-    # p mentions
     existing_tag_names = tags.map { |t| t.name }
     hashtags = hashtags.reject { |t| existing_tag_names.include?(t) }
     mentions = mentions.reject { |t| existing_tag_names.include?(t) }
-    # p '--'
-    # p existing_tag_names
-    # p '--'
-    # p hashtags
-    # p mentions
 
     hashtags.each do |name|
       tag = user.tags.find_by(name: name, mention: false);
