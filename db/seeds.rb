@@ -23,7 +23,7 @@ seed_notes = lambda do |user, amount|
     title = ""
     (rand(0..1)).times { title += "#{hashtags.sample} " }
     (rand(0..1)).times { title += "#{mentions.sample} " }
-    title += [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0)
+    title += [true, false].sample ? "" : Faker::Hipster.sentence(rand(1..3), false, 0).chop
 
     body = ""
     (rand(0..2)).times { body += "#{hashtags.sample} " }

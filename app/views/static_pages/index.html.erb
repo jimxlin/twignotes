@@ -117,6 +117,7 @@
   $(function() {
 
     var filterTagIds = []; // tag Ids of the filters in use
+    var notesHtml = [];
     var timeFilters = {sort: 'newest', interval: '0'}
 
 /**********************************************************************/
@@ -259,12 +260,6 @@ $('.tag-filters').on('click', '.li-filter', function(){
   populateNotes();
 });
 
-// Creates note counter
-function noteCounter() {
-  var count = $('.notecard').length;
-  return String(count);
-}
-
 // Adds <li> elements to the filter-bar
 function populateFilterBar() {
   $('.filter-bar .li-filter').remove();
@@ -292,13 +287,13 @@ function filterBarHtml(tagName, tagId) {
 // Sort notes by most recent or oldest
 $('.time-filters .time-sort').change(function() {
   timeFilters.sort = $(this).val();
-  populateNotes();
+  sortNotes();
 });
 
 // Filter notes by a time interval
 $('.time-filters .time-interval').change(function() {
   timeFilters.interval = $(this).val();
-  populateNotes();
+  sortNotes();
 });
 
 /**********************************************************************/
@@ -319,13 +314,11 @@ $('.time-filters .time-interval').change(function() {
 
       $.get("/notes?"+queryStr(filterTagIds)).success(function(notes) {
         if (!notes) return null;
-        var sortedNotes = sortNotes(notes);
-        var notesHtml = "";
-        sortedNotes.forEach(function(note, i) {
-          notesHtml += noteHtml(note);
+        notesHtml = [];
+        notes.forEach(function(note, i) {
+          notesHtml.push( $($.parseHTML(noteHtml(note))) );
         });
-        $('.notecards-container').append(notesHtml);
-        $('.brand .note-count').text('(' + noteCounter() + ')');
+        sortNotes();
       });
     }
 
@@ -360,29 +353,35 @@ $('.time-filters .time-interval').change(function() {
 
     // Sort and filter notes based on timeFilter options
     const DAY = 8.64e7;
-    function sortNotes(notes) {
+    function sortNotes() {
+      $('.notecards-container .note-container').remove();
       var sortedNotes = [];
-
-      if (timeFilters.interval === '0') {
-        sortedNotes = notes;
-      } else {
-        notes.forEach(function(note, i) {
-          var today = new Date();
-          var date = new Date(note.updated_at);
-          var interval = Number(timeFilters.interval) * DAY;
-          if (today - date <= interval) sortedNotes.push(note);
-        });
-      }
+      var interval = Number(timeFilters.interval) * DAY;
+      notesHtml.forEach(function($note, i) {
+        var today = new Date();
+        var updateDate = new Date( $note.children('.notecard').data('updatetime') );
+        var createDate = new Date( $note.children('.notecard').data('createtime') );
+        if (interval === 0 || today - createDate <= interval) sortedNotes.push($note);
+      });
       sortedNotes.sort(function(a,b) {
-        var dateA = new Date(a.created_at);
-        var dateB = new Date(b.created_at);
+        var dateA = new Date(a.children('.notecard').data('createtime'));
+        var dateB = new Date(b.children('.notecard').data('createtime'));
         if (timeFilters.sort === 'newest') {
           return dateB - dateA;
         } else {
           return dateA - dateB;
         }
       });
-      return sortedNotes;
+      sortedNotes.forEach(function(note) {
+        $('.notecards-container').append(note);
+      });
+      $('.brand .note-count').text('(' + noteCounter() + ')');
+    }
+
+    // counts the number of notecard divs
+    function noteCounter() {
+      var count = $('.notecard').length;
+      return String(count);
     }
 
     /**********************************************************************/
@@ -390,7 +389,7 @@ $('.time-filters .time-interval').change(function() {
     /**********************************************************************/
 
     $('#crudNotesModal .new-note-btn').click(function() {
-      
+
     });
 
     /**********************************************************************/
