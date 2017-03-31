@@ -1,28 +1,23 @@
 class NotesController < ApplicationController
-  before_action :authenticate_user!, only: [:create, :update, :destroy]
+  before_action :authenticate_user!
 
   def index
-    if current_user
-      render json: filtered_notes(params[:tags])
-    else
-      render json: nil, status: :ok
-    end
+    render json: filtered_notes(params[:tags])
   end
 
   def create
-    note = current_user.notes.create(note_params)
-    render json: note
+    @note = current_user.notes.create(note_params)
   end
 
   def update
     # Don't update timestamps for archiving / unarchiving
     archive_change = params[:note][:is_archived] ? true : false
-    Note.record_timestamps = false if archive_change
 
+    Note.record_timestamps = false if archive_change
     note = Note.find(params[:id])
     note.update_attributes(note_params)
-
     Note.record_timestamps = true if archive_change
+
     render json: note
   end
 

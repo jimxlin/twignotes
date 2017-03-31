@@ -2,8 +2,13 @@
 @import "font-awesome";
 
 body {
+  background-color: #FFCDD2;
   padding: 0 !important;
   -webkit-overflow-scrolling: touch;
+}
+
+body.modal-open {
+  overflow: auto;
 }
 
 input.toggle {
@@ -23,7 +28,7 @@ input.toggle {
   padding: 0;
 }
 
-.card.form {
+.card {
   padding: 20px;
 }
 
@@ -165,7 +170,6 @@ label {
  */
 
 .notecards-container {
-  background-color: #FFCDD2;
   padding: 10px 0px 10px 20px;
   margin: 0;
 }

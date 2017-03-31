@@ -59,11 +59,32 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body">
-        <button class="btn btn-primary">New Note</button><br />
+        <button class="btn btn-primary new-note-btn">New Note</button><br />
         <div class="btn-group crud-notes archive-mode" data-toggle="buttons">
           <label class="btn btn-warning">Archive Mode</label>
           <input class="toggle" type="checkbox">
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Note Modal -->
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="form-title-container">
+          <input type="text" class="form-title" placeholder="Title">
+        </div>
+        <hr />
+        <div class="form-body-container">
+          <textarea class="form-body" placeholder="Body"></textarea>
+        </div>
+        <div class="form-time-container">
+        </div>
+      </div>
+      <div class="modal-footer">
       </div>
     </div>
   </div>
@@ -310,9 +331,9 @@ $('.time-filters .time-interval').change(function() {
 
     // Creates a notecard <div>
     function noteHtml(note) {
-      var breakHtml = '<hr />';
       var title = note.title;
       var body = note.body;
+      var breakHtml = '<p class="note-title">' + title + '</p><hr />';
 
       if ((title.length === 0 && body.length !== 0) || (title.length !== 0 && body.length === 0)) {
         breakHtml = '';
@@ -321,7 +342,6 @@ $('.time-filters .time-interval').change(function() {
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
         '<div class="notecard col-11" data-id="' + note.id +
         '" data-updatetime="' + note.updated_at + '" data-createtime="' + note.created_at + '">' +
-        '<p class="note-title">' + title + '</p>' +
         breakHtml +
         '<p class="note-body">' + body + '</p>' +
         '<div class="text-fader" />' +
@@ -366,7 +386,15 @@ $('.time-filters .time-interval').change(function() {
     }
 
     /**********************************************************************/
-    /**************************** Note modal ******************************/
+    /**************************** New Note modal **************************/
+    /**********************************************************************/
+
+    $('#crudNotesModal .new-note-btn').click(function() {
+      
+    });
+
+    /**********************************************************************/
+    /**************************** View Note modal *************************/
     /**********************************************************************/
 
     // Get form for note in a modal
