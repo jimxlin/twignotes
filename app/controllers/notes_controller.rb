@@ -2,7 +2,7 @@ class NotesController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    render json: filtered_notes(params[:tags])
+    render json: filtered_notes(params[:tags], params[:archive])
   end
 
   def create
@@ -15,7 +15,7 @@ class NotesController < ApplicationController
 
     Note.record_timestamps = false if archive_change
     note = Note.find(params[:id])
-    note.update_attributes(note_params)
+    note.update(note_params)
     Note.record_timestamps = true if archive_change
 
     render json: note
@@ -28,28 +28,19 @@ class NotesController < ApplicationController
 
   private
 
-  ARCHIVED = 'ArchivedArchivedArchivedArchivedArchivedArchivedArchivedArchived'
   UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
 
-  def filtered_notes(tags)
-
+  def filtered_notes(tags, archive)
     if tags.nil?
-      current_user.notes.unarchived
-    elsif tags == [ARCHIVED]
-      current_user.notes.archived
+      archive == 'true' ? current_user.notes.archived : current_user.notes.unarchived
     else
-      notes = current_user.notes
-
-      # is client in archive mode?
-      notes = tags.include?(ARCHIVED) ? notes.archived : notes.unarchived
-      notes = notes.joins(:taggings)
-        .where(taggings: { tag_id: tags })
+      notes = current_user.notes.unarchived.
+        joins(:taggings).where(taggings: { tag_id: tags })
 
       # client requests untagged notes
       if tags.include?(UNTAGGED)
-        untagged_notes = current_user.notes.left_outer_joins(:taggings)
+        untagged_notes = current_user.notes.unarchived.left_outer_joins(:taggings)
           .where(taggings: { id: nil })
-        untagged_notes = tags.include?(ARCHIVED) ? untagged_notes.archived : untagged_notes.unarchived
         notes += untagged_notes
       end
 

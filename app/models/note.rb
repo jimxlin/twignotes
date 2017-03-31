@@ -11,21 +11,25 @@ class Note < ApplicationRecord
   private
 
   def create_tags
-    hashtags = (extract_hashtags(title) + extract_hashtags(body)).uniq
-    mentions = (extract_mentions(title) + extract_mentions(body)).uniq
+    if is_archived
+      tags.destroy_all
+    else
+      hashtags = (extract_hashtags(title) + extract_hashtags(body)).uniq
+      mentions = (extract_mentions(title) + extract_mentions(body)).uniq
 
-    existing_tag_names = tags.map { |t| t.name }
-    hashtags = hashtags.reject { |t| existing_tag_names.include?(t) }
-    mentions = mentions.reject { |t| existing_tag_names.include?(t) }
+      existing_tag_names = tags.map { |t| t.name }
+      hashtags = hashtags.reject { |t| existing_tag_names.include?(t) }
+      mentions = mentions.reject { |t| existing_tag_names.include?(t) }
 
-    hashtags.each do |name|
-      tag = user.tags.find_by(name: name, mention: false);
-      tag ? tags << tag : tags.create(name: name, mention: false, user_id: user.id)
-    end
+      hashtags.each do |name|
+        tag = user.tags.find_by(name: name, mention: false);
+        tag ? tags << tag : tags.create(name: name, mention: false, user_id: user.id)
+      end
 
-    mentions.each do |name|
-      tag = user.tags.find_by(name: name, mention: true)
-      tag ? tags << tag : tags.create(name: name, mention: true, user_id: user.id)
+      mentions.each do |name|
+        tag = user.tags.find_by(name: name, mention: true)
+        tag ? tags << tag : tags.create(name: name, mention: true, user_id: user.id)
+      end
     end
   end
 

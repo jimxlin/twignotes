@@ -113,11 +113,11 @@
 
 <script>
   const UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
-  const ARCHIVED = 'ArchivedArchivedArchivedArchivedArchivedArchivedArchivedArchived';
   $(function() {
 
     var filterTagIds = []; // tag Ids of the filters in use
     var notesHtml = [];
+    var archiveMode = false;
     var timeFilters = {sort: 'newest', interval: '0'}
 
 /**********************************************************************/
@@ -125,7 +125,7 @@
 /**********************************************************************/
 
     // Toggle sidebar modal
-    $('.brand .twag').click(function() {
+    $('.brand').on('click', '.twag', function() {
       $('#tagModal').modal('toggle');
     });
 
@@ -135,15 +135,11 @@
     function populateTags () {
       $('#tagModal .list-hashtags li').remove();
       $('#tagModal .list-mentions li').remove();
-
-      var archiveMode = filterTagIds.includes(ARCHIVED) ? 'true' : 'false';
-
-      $.get("/tags?archived=" + archiveMode).success(function(tags) {
+      $.get("/tags").success(function(tags) {
         if (!tags) return null;
         var hashtagHtml = "";
         var mentionHtml = "";
         tags.forEach(function(tag, i) {
-          if (tag.note_count === 0) return;
           if (tag.mention) {
             mentionHtml += sidebarTagHtml(tag, true);
           } else {
@@ -231,14 +227,21 @@
       var $checkbox = $(this).children('input');
       var $button = $(this).children('label');
 
+      filterTagIds = [];
       if ($checkbox.prop('checked')) {    // disable archive mode
         $checkbox.prop('checked', false);
         $button.addClass("active");
-        filterTagIds = [];
+
+        $('.brand .toggle-tag-filter').addClass("twag");
+        $('body').css("background-color","#FFCDD2")
+        archiveMode = false;
       } else {                            // enable archive mode
         $checkbox.prop('checked', true);
         $button.removeClass("active");
-        filterTagIds = [ARCHIVED];
+
+        $('.brand .toggle-tag-filter').removeClass("twag");
+        $('body').css("background-color","#FFE57F")
+        archiveMode = true;
       }
       populateTags();
       populateNotes();
@@ -306,13 +309,8 @@ $('.time-filters .time-interval').change(function() {
     // Adds notecard divs to the main window
     function populateNotes() {
       $('.note-container').remove();
-      $('body').css("background-color","#FFCDD2")
-      if (filterTagIds.includes(ARCHIVED)) {
-        $('body').css("background-color","#FFE57F");
-        // TODO add button to empty archive
-      }
-
-      $.get("/notes?"+queryStr(filterTagIds)).success(function(notes) {
+      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode)
+      .success(function(notes) {
         if (!notes) return null;
         notesHtml = [];
         notes.forEach(function(note, i) {
@@ -429,7 +427,6 @@ $('.time-filters .time-interval').change(function() {
       if (now - createdAt < DAY) {
         createTxt = 'Created today'
       } else {
-        console.log(createdAt);
         createTxt = 'Created on ' + String(createdAt).slice(0,16);
       }
       $('.form-time-container').html('<i>' + createTxt + '</i>')
@@ -450,6 +447,7 @@ $('.time-filters .time-interval').change(function() {
         _method: "PUT",
         note: { is_archived: true }
       }).success(function() {
+        filterTagIds = [];
         $('#noteModal').modal('toggle');
         populateTags();
         populateFilterBar();
@@ -511,7 +509,7 @@ $('.time-filters .time-interval').change(function() {
 
     // Change modal buttons depending on archive mode
     function modalButtonHtml(noteId) {
-      if (filterTagIds.includes(ARCHIVED)) {
+      if (archiveMode) {
         var str =
           '<button type="button" class="btn btn-danger btn-delete" style="margin-right: auto;" data-id="' + noteId + '">Delete</button>' +
           '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
