@@ -33,7 +33,7 @@
 
         <ul class="nav flex-column">
           <li class="nav-item untagged-filter">
-            <label>&nbsp;&nbsp;&nbsp;untagged</label>
+            <label>&nbsp;&nbsp;untagged</label>
             <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
           </li>
         </ul>
@@ -46,14 +46,12 @@
 
 <!-- CRUD Notes Modal -->
 <div class="modal fade" id="crudNotesModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
       <div class="modal-body">
-        <button class="btn btn-primary new-note-btn">New Note</button><br />
-        <div class="btn-group crud-notes archive-mode" data-toggle="buttons">
-          <label class="btn btn-warning">Archive Mode</label>
-          <input class="toggle" type="checkbox">
-        </div>
+        <button class="btn btn-primary new-note-btn col-12">New Note</button><br />
+        <label class="btn btn-warning btn-archive col-12">Archive Mode</label>
+        <input class="toggle" type="checkbox">
       </div>
     </div>
   </div>
@@ -226,14 +224,14 @@
         $button.addClass("active");
 
         $('.brand .toggle-tag-filter').addClass("twag");
-        $('body').css("background-color","#FFCDD2")
+        $('body, .time-filters').css("background-color","#BBDEFB")
         archiveMode = false;
       } else {                            // enable archive mode
         $checkbox.prop('checked', true);
         $button.removeClass("active");
 
         $('.brand .toggle-tag-filter').removeClass("twag");
-        $('body').css("background-color","#FFE57F")
+        $('body, .time-filters').css("background-color","#FFD180");
         archiveMode = true;
       }
       populateTags();
