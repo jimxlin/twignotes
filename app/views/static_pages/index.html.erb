@@ -50,7 +50,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <button class="btn btn-primary new-note-btn col-12">New Note</button><br />
-        <label class="btn btn-warning btn-archive col-12">Toggle Archive Mode</label>
+        <label class="btn btn-warning toggle-archive-btn col-12">Toggle Archives</label>
         <input class="toggle" type="checkbox">
       </div>
     </div>
@@ -255,7 +255,7 @@
     });
 
     // Archive mode, only archived or unarchived notes shown
-    $('#crudNotesModal .btn-archive').click(function() {
+    $('#crudNotesModal .toggle-archive-btn').click(function() {
       var $checkbox = $(this).next('input');
       //var $button = $(this).children('label');
 
@@ -264,17 +264,37 @@
         $checkbox.prop('checked', false);
         $('.brand .toggle-tag-filter').addClass("twag");
         $('body, .time-filters').css("background-color","#BBDEFB")
+        setTimeout(function(){
+          $('#crudNotesModal .delete-all-btn').remove();
+        }, 500);
         archiveMode = false;
       } else {                            // enable archive mode
         $checkbox.prop('checked', true);
         $('.brand .toggle-tag-filter').removeClass("twag");
         $('body, .time-filters').css("background-color","#FFD180");
+        setTimeout(function() {
+          $('#crudNotesModal .modal-body').append(
+            '<button class="btn btn-danger delete-all-btn col-12">Empty Archives</button>'
+          )
+        }, 500);
         archiveMode = true;
       }
       populateTags();
       populateNotes();
       populateFilterBar();
       $('#crudNotesModal').modal('toggle');
+    });
+
+    // Delete all archived notes
+    $('#crudNotesModal .delete-all-btn').click(function() {
+      $.ajax({
+        type: "DELETE",
+        url: '/empty-archives'
+      }).success(function() {
+        populateFilterBar();
+        populateNotes();
+        $('#crudNotesModal').modal('toggle');
+      });
     });
 
 /**********************************************************************/
@@ -514,7 +534,7 @@ $('.time-filters .time-interval').change(function() {
       var noteId = $(this).data("id");
       $.ajax({
         type: "DELETE",
-        url: 'notes/' + noteId
+        url: '/notes/' + noteId
       }).success(function() {
         $('#noteModal').modal('toggle');
         populateTags();

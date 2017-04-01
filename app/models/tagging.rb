@@ -3,6 +3,7 @@ class Tagging < ApplicationRecord
   belongs_to :tag
   validates_uniqueness_of :note_id, scope: :tag_id
 
+  before_destroy :update_note_count_for_tag
   before_destroy :destroy_orphan_tag
   after_save :update_note_count_for_tag
 

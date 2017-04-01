@@ -22,7 +22,12 @@ class NotesController < ApplicationController
   end
 
   def destroy
-    Note.find(params[:id]).destroy
+    current_user.notes.find(params[:id]).destroy
+    render json: nil, status: :ok
+  end
+
+  def empty_archives
+    current_user.notes.archived.destroy_all
     render json: nil, status: :ok
   end
 

@@ -106,8 +106,12 @@ label {
  * CRUD-notes modal
  */
 
- #crudNotesModal .btn-archive {
+ #crudNotesModal .toggle-archive-btn {
    margin-top: 15px;
+ }
+
+ #crudNotesModal .delete-all-btn {
+   margin-top: 240px;
  }
 
  #crudNotesModal label {

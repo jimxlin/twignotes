@@ -3,12 +3,17 @@ class Note < ApplicationRecord
   has_many :taggings
   has_many :tags, through: :taggings, dependent: :destroy
 
+  before_destroy :prevent_destroying_unarchived
   after_save :create_tags
 
   scope :unarchived, -> { where(is_archived: false) }
   scope :archived, -> { where(is_archived: true) }
 
   private
+
+  def prevent_destroying_unarchived
+    throw(:abort) unless is_archived
+  end
 
   def create_tags
     if is_archived
