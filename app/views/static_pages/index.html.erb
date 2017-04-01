@@ -114,33 +114,42 @@
 /***************************** Search form ****************************/
 /**********************************************************************/
 
-$('nav .search-form input').click(function(){
-  $(this).val('');
-});
-
-// Hide notecard that don't match the search terms
-$('nav .search-form .btn').click(function() {
-  $('.note-container').css("display","inline-block");
-  var $form = $(this).siblings('input');
-  var str = $form.val();
-  if (str.length === 0 || str.search(/^\s+$/) === 0) {
-    populateNotes();
-    $form.val('');
-    return;
-  }
-
-  var strAry = str.split(/\s+/)
-  $('.note-container').each(function() {
-    var noteTxt = '';
-    $(this).find('p').each(function() {
-      noteTxt += $(this).text() + ' ';
+    $('nav .search-form input').click(function(){
+      $(this).val('');
     });
-    for (var i=0; i<strAry.length; i++) {
-      if (noteTxt.search(strAry[i]) > -1) return;
+
+    // Search on button click
+    $('nav .search-form button').click(searchFilter);
+
+    // Search on pressing enter
+    $('nav .search-form input').keypress(function(key) {
+      if (key.which === 13) searchFilter();
+    });
+
+    // Hide notecards that don't match the search terms
+    function searchFilter() {
+      $('.note-container').css("display","inline-block");
+      var $form = $('.search-form input');
+      var str = $form.val().toLowerCase();
+      if (str.length === 0 || str.search(/^\s+$/) === 0) {
+        populateNotes();
+        $form.val('');
+        return;
+      }
+
+      var strAry = str.split(/\s+/)
+      $('.note-container').each(function() {
+        var noteTxt = '';
+        $(this).find('p').each(function() {
+          noteTxt += $(this).text().toLowerCase() + ' ';
+        });
+        for (var i=0; i<strAry.length; i++) {
+          if (noteTxt.search(strAry[i]) > -1) return;
+        }
+        $(this).css("display","none");
+      });
+      noteCounter();
     }
-    $(this).css("display","none");
-  });
-})
 
 /**********************************************************************/
 /***************************** Sidebar modal **************************/
@@ -393,13 +402,16 @@ $('.time-filters .time-interval').change(function() {
       sortedNotes.forEach(function(note) {
         $('.notecards-container').append(note);
       });
-      $('.brand .note-count').text('(' + noteCounter() + ')');
+      noteCounter();
     }
 
     // counts the number of notecard divs
     function noteCounter() {
-      var count = $('.notecard').length;
-      return String(count);
+      var count = 0;
+      $('.note-container').each(function(){
+        if ($(this).css('display') !== 'none') count++;
+      });
+      $('.brand .note-count').text('(' + count + ')');
     }
 
 /**********************************************************************/
