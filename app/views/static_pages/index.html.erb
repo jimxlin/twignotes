@@ -1,10 +1,6 @@
 <div class="filter-bar row">
   <div class="tag-filters-container col-6 col-sm-8 col-md-9 col-lg-9">
-
-    <div class="tag-filters">
-      <ul>
-      </ul>
-    </div>
+    <div class="tag-filters"><ul></ul></div>
   </div>
 
   <div class="time-filters col-6 col-sm-4 col-md-3 col-lg-3 row">
@@ -22,9 +18,7 @@
 </div>
 
 <main>
-  <div class="notecards-container row">
-
-  </div>
+  <div class="notecards-container row"></div>
 </main>
 
 <!-- Sidebar Modal -->
@@ -39,16 +33,12 @@
 
         <ul class="nav flex-column">
           <li class="nav-item untagged-filter">
-            <label>=untagged</label>
+            <label>&nbsp;&nbsp;&nbsp;untagged</label>
             <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
           </li>
         </ul>
-
-        <ul class="nav flex-column list-hashtags">
-        </ul>
-
-        <ul class="nav flex-column list-mentions">
-        </ul>
+        <ul class="nav flex-column list-hashtags"></ul>
+        <ul class="nav flex-column list-mentions"></ul>
       </div>
     </div>
   </div>
@@ -70,7 +60,7 @@
 </div>
 
 <!-- New Note Modal -->
-<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+<div class="modal fade" id="newNoteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body">
@@ -85,6 +75,8 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary btn-save">Save</button>
       </div>
     </div>
   </div>
@@ -133,6 +125,7 @@
 
     // populate sidebar with tags
     function populateTags () {
+      if (archiveMode) return;
       $('#tagModal .list-hashtags li').remove();
       $('#tagModal .list-mentions li').remove();
       $.get("/tags").success(function(tags) {
@@ -387,7 +380,29 @@ $('.time-filters .time-interval').change(function() {
     /**********************************************************************/
 
     $('#crudNotesModal .new-note-btn').click(function() {
+      $('#crudNotesModal').modal('toggle');
+      $('#newNoteModal .form-title').val('');
+      $('#newNoteModal .form-body').val('');
+      $('#newNoteModal').modal('toggle');
+    });
 
+    $('#newNoteModal .btn-save').click(function() {
+      var titleStr= $('#newNoteModal .form-title').val();
+      var bodyStr = $('#newNoteModal .form-body').val();
+
+      if (titleStr.length === 0 && bodyStr.length === 0) {
+        $('#noteModal').modal('toggle');
+        alert("Can't save a blank note.");
+        return;
+      }
+      $.post('/notes', {
+        note: { title: titleStr, body: bodyStr }
+      }).success(function() {
+        $('#newNoteModal').modal('toggle');
+        populateTags();
+        populateFilterBar();
+        populateNotes();
+      });
     });
 
     /**********************************************************************/
@@ -414,8 +429,8 @@ $('.time-filters .time-interval').change(function() {
     function noteFormHtml(titleText, bodyText) {
       currentTitleText = titleText;
       currentBodyText = bodyText;
-      $('.form-title').val(titleText);
-      $('.form-body').val(bodyText);
+      $('#noteModal .form-title').val(titleText);
+      $('#noteModal .form-body').val(bodyText);
     }
 
     // Add 'timestamps' to note modal
@@ -441,9 +456,9 @@ $('.time-filters .time-interval').change(function() {
     }
 
     // Archive note
-    $('.modal').on('click', '.btn-archive', function() {
+    $('#noteModal').on('click', '.btn-archive', function() {
       var noteId = $(this).data("id");
-      $.post('notes/' + noteId, {
+      $.post('/notes/' + noteId, {
         _method: "PUT",
         note: { is_archived: true }
       }).success(function() {
@@ -456,7 +471,7 @@ $('.time-filters .time-interval').change(function() {
     });
 
     // Delete note
-    $('.modal').on('click', '.btn-delete', function() {
+    $('#noteModal').on('click', '.btn-delete', function() {
       var noteId = $(this).data("id");
       $.ajax({
         type: "DELETE",
@@ -470,10 +485,10 @@ $('.time-filters .time-interval').change(function() {
     });
 
     // Save changes to note
-    $('.modal').on('click', '.btn-save', function() {
+    $('#noteModal').on('click', '.btn-save', function() {
       var noteId = $(this).data("id");
-      var titleStr= $('.modal .form-title').val();
-      var bodyStr = $('.modal .form-body').val();
+      var titleStr= $('#noteModal .form-title').val();
+      var bodyStr = $('#noteModal .form-body').val();
 
       if (currentTitleText === titleStr && currentBodyText === bodyStr) return;
 
@@ -482,7 +497,7 @@ $('.time-filters .time-interval').change(function() {
         alert("Can't save a blank note.");
         return;
       }
-      $.post('notes/' + noteId, {
+      $.post('/notes/' + noteId, {
         _method: "PUT",
         note: { title: titleStr, body: bodyStr }
       }).success(function() {
@@ -494,9 +509,9 @@ $('.time-filters .time-interval').change(function() {
     });
 
     // Restore note
-    $('.modal').on('click', '.btn-restore', function() {
+    $('#noteModal').on('click', '.btn-restore', function() {
       var noteId = $(this).data("id");
-      $.post('notes/' + noteId, {
+      $.post('/notes/' + noteId, {
         _method: "PUT",
         note: { is_archived: false }
       }).success(function() {
