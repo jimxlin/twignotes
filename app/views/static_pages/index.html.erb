@@ -50,7 +50,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <button class="btn btn-primary new-note-btn col-12">New Note</button><br />
-        <label class="btn btn-warning btn-archive col-12">Archive Mode</label>
+        <label class="btn btn-warning btn-archive col-12">Toggle Archive Mode</label>
         <input class="toggle" type="checkbox">
       </div>
     </div>
@@ -109,6 +109,38 @@
     var notesHtml = [];
     var archiveMode = false;
     var timeFilters = {sort: 'newest', interval: '0'}
+
+/**********************************************************************/
+/***************************** Search form ****************************/
+/**********************************************************************/
+
+$('nav .search-form input').click(function(){
+  $(this).val('');
+});
+
+// Hide notecard that don't match the search terms
+$('nav .search-form .btn').click(function() {
+  $('.note-container').css("display","inline-block");
+  var $form = $(this).siblings('input');
+  var str = $form.val();
+  if (str.length === 0 || str.search(/^\s+$/) === 0) {
+    populateNotes();
+    $form.val('');
+    return;
+  }
+
+  var strAry = str.split(/\s+/)
+  $('.note-container').each(function() {
+    var noteTxt = '';
+    $(this).find('p').each(function() {
+      noteTxt += $(this).text() + ' ';
+    });
+    for (var i=0; i<strAry.length; i++) {
+      if (noteTxt.search(strAry[i]) > -1) return;
+    }
+    $(this).css("display","none");
+  });
+})
 
 /**********************************************************************/
 /***************************** Sidebar modal **************************/
@@ -295,6 +327,7 @@ $('.time-filters .time-interval').change(function() {
 
     // Adds notecard divs to the main window
     function populateNotes() {
+      $('nav .search-form input').val('');
       $('.note-container').remove();
       $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode)
       .success(function(notes) {
@@ -369,9 +402,9 @@ $('.time-filters .time-interval').change(function() {
       return String(count);
     }
 
-    /**********************************************************************/
-    /**************************** New Note modal **************************/
-    /**********************************************************************/
+/**********************************************************************/
+/**************************** New Note modal **************************/
+/**********************************************************************/
 
     $('#crudNotesModal .new-note-btn').click(function() {
       $('#crudNotesModal').modal('toggle');
@@ -399,9 +432,9 @@ $('.time-filters .time-interval').change(function() {
       });
     });
 
-    /**********************************************************************/
-    /**************************** View Note modal *************************/
-    /**********************************************************************/
+/**********************************************************************/
+/**************************** View Note modal *************************/
+/**********************************************************************/
 
     // Get form for note in a modal
     $('.notecards-container').on('click','.notecard', function(){

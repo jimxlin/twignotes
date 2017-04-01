@@ -80,7 +80,7 @@ label {
 }
 
 #tagModal .modal-dialog {
-  margin-left: 10px;
+  margin-left: -.3em;
 }
 
 #tagModal .modal-body {
@@ -105,6 +105,14 @@ label {
 /*
  * CRUD-notes modal
  */
+
+ #crudNotesModal .btn-archive {
+   margin-top: 15px;
+ }
+
+ #crudNotesModal label {
+   margin: 0;
+ }
 
 #crudNotesModal .btn {
   border-radius: 0.25rem;
@@ -218,22 +226,6 @@ label {
   height: 20%;
   width: 90%;
   background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1), rgba(255,255,255,1));
-}
-
-/*
- * CRUD note modal
- */
-
-#crudNotesModal{
-  text-align: center;
-}
-
-#crudNotesModal .btn-archive {
-  margin-top: 15px;
-}
-
-#crudNotesModal label {
-  margin: 0;
 }
 
 /*

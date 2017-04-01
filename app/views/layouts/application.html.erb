@@ -31,6 +31,10 @@
             <li class="nav-item">
               <%= link_to 'Sign out', destroy_user_session_path, method: :delete, class: 'nav-link' %>
             </li>
+            <div class="form-inline my-2 my-lg-0 search-form">
+              <input class="form-control mr-sm-2" type="text" placeholder="Search" value="">
+              <button class="btn btn-outline-secondary my-2 my-sm-0">Search</button>
+            </div>
           <% else %>
             <li class="nav-item">
               <%= link_to 'Log in', new_user_session_path, class: 'nav-link' %>
