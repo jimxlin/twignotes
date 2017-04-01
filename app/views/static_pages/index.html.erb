@@ -303,7 +303,7 @@
 
 // Remove tag filters when clicking them on the filter-bar
 $('.tag-filters').on('click', '.li-filter', function(){
-  var tagId = $(this).attr('id');
+  var tagId = Number( $(this).attr('id') );
   $('[data-id=' + tagId + ']').prop('checked', false).change();
   filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
   $(this).remove();
