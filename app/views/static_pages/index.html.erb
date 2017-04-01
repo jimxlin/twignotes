@@ -214,22 +214,18 @@
     });
 
     // Archive mode, only archived or unarchived notes shown
-    $('#crudNotesModal .archive-mode').click(function() {
-      var $checkbox = $(this).children('input');
-      var $button = $(this).children('label');
+    $('#crudNotesModal .btn-archive').click(function() {
+      var $checkbox = $(this).next('input');
+      //var $button = $(this).children('label');
 
       filterTagIds = [];
       if ($checkbox.prop('checked')) {    // disable archive mode
         $checkbox.prop('checked', false);
-        $button.addClass("active");
-
         $('.brand .toggle-tag-filter').addClass("twag");
         $('body, .time-filters').css("background-color","#BBDEFB")
         archiveMode = false;
       } else {                            // enable archive mode
         $checkbox.prop('checked', true);
-        $button.removeClass("active");
-
         $('.brand .toggle-tag-filter').removeClass("twag");
         $('body, .time-filters').css("background-color","#FFD180");
         archiveMode = true;
