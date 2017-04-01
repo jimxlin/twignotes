@@ -26,10 +26,21 @@
   <div class="modal-dialog col-10 modal-sm" role="document">
     <div class="modal-content">
       <div class="modal-body">
+        <div class="row tag-filter-btns">
 
-        <button type="button" class="clear-tag-filters btn btn-primary btn-sm col-12">
-          clear filters
-        </button>
+          <button type="button" class="clear-tag-filters btn btn-primary btn-sm col-4">
+            CLEAR
+          </button>
+
+          <div class="btn-group col-7" data-toggle="buttons">
+            <label class="btn btn-info jointype-or active col-6">
+              <input type="radio" name="options" id="option1" checked>OR
+            </label>
+            <label class="btn btn-info jointype-and col-6">
+              <input type="radio" name="options" id="option2">AND
+            </label>
+          </div>
+        </div>
 
         <ul class="nav flex-column">
           <li class="nav-item untagged-filter">
@@ -108,6 +119,7 @@
     var filterTagIds = []; // tag Ids of the filters in use
     var notesHtml = [];
     var archiveMode = false;
+    var joinType = 'OR';
     var timeFilters = {sort: 'newest', interval: '0'}
 
 /**********************************************************************/
@@ -183,6 +195,18 @@
       });
     }
 
+    // Radio buttons determine behavior of combined tag filters
+    $('.jointype-or').click(function() {
+      if (joinType == 'OR' || filterTagIds.length < 2) return;
+      joinType = 'OR';
+      populateNotes();
+    });
+    $('.jointype-and').click(function() {
+      if (joinType == 'AND' || filterTagIds.length < 2) return;
+      joinType = 'AND';
+      populateNotes();
+    });
+
     // Filter notes by tags in sidebar
     $('#tagModal').on('click','.tag-filter', function(){
       var $checkbox = $(this).children('input');
@@ -218,7 +242,12 @@
     // Toggle highlighting of tag filters and archive mode
     $('#tagModal ul').on('change', 'input', function() {
       if ($(this).prop('checked')) {
-        $(this).parent().css("background-color","rgba(0, 0, 0, 0.1)")
+        var $div = $(this).parent()
+        if ($div.hasClass('untagged-filter')) {
+          $div.css("background-color","rgba(0, 255, 0, 0.1)")
+        } else {
+          $div.css("background-color","rgba(0, 0, 0, 0.1)")
+        }
       } else {
         $(this).parent().css("background-color","rgba(0, 0, 0, 0)")
       }
@@ -358,7 +387,7 @@ $('.time-filters .time-interval').change(function() {
     function populateNotes() {
       $('nav .search-form input').val('');
       $('.note-container').remove();
-      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode)
+      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode+"&jointype="+joinType)
       .success(function(notes) {
         if (!notes) return null;
         notesHtml = [];

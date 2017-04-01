@@ -2,7 +2,7 @@ class NotesController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    render json: filtered_notes(params[:tags], params[:archive])
+    render json: filtered_notes(params[:tags], params[:archive], params[:jointype])
   end
 
   def create
@@ -33,22 +33,27 @@ class NotesController < ApplicationController
 
   private
 
-  UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged'
+  UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged' # remove the need for this
 
-  def filtered_notes(tags, archive)
+  def filtered_notes(tags, archive, jointype)
     if tags.nil?
       archive == 'true' ? current_user.notes.archived : current_user.notes.unarchived
     else
-      notes = current_user.notes.unarchived.
-        joins(:taggings).where(taggings: { tag_id: tags })
-
-      # client requests untagged notes
-      if tags.include?(UNTAGGED)
+      tag_ids = tags.map {|t| t.to_i}
+      if jointype == 'OR'
+        notes = current_user.notes.unarchived.
+          joins(:taggings).where(taggings: { tag_id: tag_ids })
+      elsif jointype == 'AND'
+        notes =
+          current_user.notes.includes(:tags).select do |note|
+            ( tag_ids - note.tags.map {|t| t.id} ).empty?
+          end
+      end
+      if tags.include?(UNTAGGED) # client requests untagged notes
         untagged_notes = current_user.notes.unarchived.left_outer_joins(:taggings)
           .where(taggings: { id: nil })
         notes += untagged_notes
       end
-
       notes.to_a.uniq
     end
   end

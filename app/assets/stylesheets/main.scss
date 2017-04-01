@@ -87,8 +87,18 @@ label {
   overflow-x: hidden;
 }
 
-#tagModal .clear-tag-filters {
+#tagModal .tag-filter-btns {
+  padding: 0px 15px 0px 15px;
   margin-bottom: 12px;
+}
+
+#tagModal .btn-group {
+  padding: 0;
+  margin-left: auto;
+}
+
+#tagModal .clear-tag-filters {
+  font-size: 16px;
 }
 
 #tagModal label {
