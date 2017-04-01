@@ -317,16 +317,16 @@ $('.time-filters .time-interval').change(function() {
     function noteHtml(note) {
       var title = note.title;
       var body = note.body;
-      var breakHtml = '<p class="note-title">' + title + '</p><hr />';
-
-      if ((title.length === 0 && body.length !== 0) || (title.length !== 0 && body.length === 0)) {
+      var titleHtml = title.length > 0 ? '<p class="note-title">' + title + '</p>' : ''
+      var breakHtml = '<hr />';
+      if ((title.length === 0 && body.length > 0) || (title.length > 0 && body.length === 0)) {
         breakHtml = '';
       }
       var divElement =
         '<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 note-container">' +
         '<div class="notecard col-11" data-id="' + note.id +
         '" data-updatetime="' + note.updated_at + '" data-createtime="' + note.created_at + '">' +
-        breakHtml +
+        titleHtml + breakHtml +
         '<p class="note-body">' + body + '</p>' +
         '<div class="text-fader" />' +
         '</div></div>';
