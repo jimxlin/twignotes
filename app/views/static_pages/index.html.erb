@@ -45,11 +45,12 @@
         <ul class="nav flex-column">
           <li class="nav-item untagged-filter">
             <label>&nbsp;&nbsp;untagged</label>
-            <input class="toggle" type="checkbox" data-id="UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged">
+            <input class="toggle" type="checkbox">
           </li>
         </ul>
         <ul class="nav flex-column list-hashtags"></ul>
         <ul class="nav flex-column list-mentions"></ul>
+        <div class="sidebar-fader"></div>
       </div>
     </div>
   </div>
@@ -113,12 +114,12 @@
 </div>
 
 <script>
-  const UNTAGGED = 'UntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntaggedUntagged';
   $(function() {
 
     var filterTagIds = []; // tag Ids of the filters in use
     var notesHtml = [];
     var archiveMode = false;
+    var includeUntagged = false;
     var joinType = 'OR';
     var timeFilters = {sort: 'newest', interval: '0'}
 
@@ -197,12 +198,12 @@
 
     // Radio buttons determine behavior of combined tag filters
     $('.jointype-or').click(function() {
-      if (joinType == 'OR' || filterTagIds.length < 2) return;
+      if (joinType == 'OR') return;
       joinType = 'OR';
       populateNotes();
     });
     $('.jointype-and').click(function() {
-      if (joinType == 'AND' || filterTagIds.length < 2) return;
+      if (joinType == 'AND') return;
       joinType = 'AND';
       populateNotes();
     });
@@ -230,10 +231,10 @@
 
       if ($checkbox.prop('checked')) {    // Remove tag filter
         $checkbox.prop('checked', false).change();
-        filterTagIds.splice(filterTagIds.indexOf(UNTAGGED), 1);
+        includeUntagged = false;
       } else {                            // Add tag filter
         $checkbox.prop('checked', true).change();
-        filterTagIds.push(UNTAGGED);
+        includeUntagged = true;
       }
       populateFilterBar();
       populateNotes();
@@ -255,10 +256,11 @@
 
     // Clear all tag filters
     $('.clear-tag-filters').click(function(){
-      if (filterTagIds.length === 0) return;
+      if (filterTagIds.length === 0 && !includeUntagged) return;
       filterTagIds = [];
+      includeUntagged = false;
       $('#tagModal input').each(function() { $(this).prop('checked', false).change(); });
-      $('.li-filter').remove();
+      $('.filter-bar .li-filter').remove();
       populateNotes();
     });
 
@@ -286,7 +288,6 @@
     // Archive mode, only archived or unarchived notes shown
     $('#crudNotesModal .toggle-archive-btn').click(function() {
       var $checkbox = $(this).next('input');
-      //var $button = $(this).children('label');
 
       filterTagIds = [];
       if ($checkbox.prop('checked')) {    // disable archive mode
@@ -340,7 +341,7 @@ $('.tag-filters').on('click', '.li-filter', function(){
   populateNotes();
 });
 
-// Adds <li> elements to the filter-bar
+// Add <li> elements to the filter-bar
 function populateFilterBar() {
   $('.filter-bar .li-filter').remove();
 
@@ -350,11 +351,7 @@ function populateFilterBar() {
 
     var tagId = $checkbox.data('id');
     var tagName = $(this).children('label').text();
-    if (tagId === UNTAGGED) {
-      $('.filter-bar ul').append('<li class="li-filter" id="' + UNTAGGED + '">Untagged</li>');
-    } else {
-      $('.filter-bar ul').append(filterBarHtml(tagName, tagId));
-    }
+    $('.filter-bar ul').append(filterBarHtml(tagName, tagId));
   });
 }
 
@@ -387,7 +384,7 @@ $('.time-filters .time-interval').change(function() {
     function populateNotes() {
       $('nav .search-form input').val('');
       $('.note-container').remove();
-      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode+"&jointype="+joinType)
+      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode+"&jointype="+joinType+"&untagged="+includeUntagged)
       .success(function(notes) {
         if (!notes) return null;
         notesHtml = [];
