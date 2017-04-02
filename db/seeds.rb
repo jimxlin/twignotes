@@ -1,23 +1,20 @@
 DatabaseCleaner.clean_with(:truncation)
 
-user1 = User.create(
-  email: 'foobar@foobar.com',
-  password: 'foobar',
-  password_confirmation: 'foobar'
-)
-
-user2 = User.create(
-  email: 'foobaz@foobaz.com',
-  password: 'foobar',
-  password_confirmation: 'foobar'
-)
-
-hashtags = []
-8.times { hashtags << '#' + Faker::Hipster.word }
-mentions = []
-8.times { mentions << '@' + Faker::Name.first_name}
+users = []
+7.times do |n|
+ users <<  User.create(
+            email: "foobar-#{n}@foobar.com",
+            password: 'foobar',
+            password_confirmation: 'foobar'
+          )
+end
 
 seed_notes = lambda do |user, amount|
+  hashtags = []
+  (amount / 2).times { hashtags << '#' + Faker::Hipster.word }
+  mentions = []
+  (amount / 2).times { mentions << '@' + Faker::Name.first_name}
+
   notes = []
   (amount.to_int * 7 / 8).times do
     title = ""
@@ -57,5 +54,4 @@ seed_notes = lambda do |user, amount|
   end
 end
 
-seed_notes.call(user1, 16)
-seed_notes.call(user2, 16)
+users.each {|user| seed_notes.call(user, 16)}
