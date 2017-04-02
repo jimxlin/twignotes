@@ -149,12 +149,13 @@ input.toggle { display: none !important; }
     display: inline-block;
     padding: 0;
     user-select: none;
+    margin-top: 16px;
     .notecard {
       box-shadow: 1px 1px 2px 0 #d0d0d0;
       background: #fff;
       border: 1px solid #ccc;
       border-color: #e4e4e4 #bebebd #bebebd #e4e4e4;
-      margin-top: 16px;
+      //margin-top: 16px;
       padding: 20px;
       display: inline-block;
       height: 200px;
