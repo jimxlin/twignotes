@@ -316,7 +316,7 @@
     });
 
     // Delete all archived notes
-    $('#crudNotesModal .delete-all-btn').click(function() {
+    $('#crudNotesModal').on('click', '.delete-all-btn', function() {
       $.ajax({
         type: "DELETE",
         url: '/empty-archives'
