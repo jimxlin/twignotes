@@ -45,7 +45,7 @@
         <ul class="nav flex-column">
           <li class="nav-item untagged-filter">
             <label>&nbsp;&nbsp;untagged</label>
-            <input class="toggle" type="checkbox">
+            <input class="toggle" type="checkbox" data-id="untagged">
           </li>
         </ul>
         <ul class="nav flex-column list-hashtags"></ul>
@@ -333,9 +333,14 @@
 
 // Remove tag filters when clicking them on the filter-bar
 $('.tag-filters').on('click', '.li-filter', function(){
-  var tagId = Number( $(this).attr('id') );
+  var tagId = $(this).attr('id');
+  tagId = tagId === 'untagged' ? tagId : Number(tagId);
   $('[data-id=' + tagId + ']').prop('checked', false).change();
-  filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
+  if (tagId === 'untagged') {
+    includeUntagged = false;
+  } else {
+    filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
+  }
   $(this).remove();
 
   populateNotes();
