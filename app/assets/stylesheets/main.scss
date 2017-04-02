@@ -65,10 +65,13 @@ input.toggle { display: none !important; }
     margin-left: auto;
   }
   .clear-tag-filters { font-size: 16px; }
+  @media (max-width: 575px) {
+    .clear-tag-filters { font-size: 24px; }
+    label { font-size: 24px; }
+  }
   .tag-filter { overflow-x: hidden; }
   label {
     display: inline-block;
-    font-size: 16px;
     margin: 0;
     padding: 4px 4px 4px 8px;
   }
