@@ -27,7 +27,7 @@ class Note < ApplicationRecord
       mentions = mentions.reject { |t| existing_tag_names.include?(t) }
 
       hashtags.each do |name|
-        tag = user.tags.find_by(name: name, mention: false);
+        tag = user.tags.find_by(name: name, mention: false)
         tag ? tags << tag : tags.create(name: name, mention: false, user_id: user.id)
       end
 

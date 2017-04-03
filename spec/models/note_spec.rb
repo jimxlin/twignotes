@@ -46,7 +46,7 @@ RSpec.describe Note, type: :model do
 
       it "won't create duplicate taggings when updating notes" do
         note = @user.notes.create(title: '#hashtag')
-        note.update!(is_archived: true)
+        note.update!(title: note.title += ' foo')
         expect(Tagging.all.count).to eq(1)
       end
     end

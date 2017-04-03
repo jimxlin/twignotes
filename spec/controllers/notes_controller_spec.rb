@@ -15,15 +15,6 @@ RSpec.describe NotesController, type: :controller do
       response_ids = json_resp.map { |note| note["id"] }
       expect(response_ids).to eq([note1.id, note2.id])
     end
-
-    it "should return a nil json response if user is not signed in" do
-      note1 = FactoryGirl.create(:note)
-      note2 = FactoryGirl.create(:note)
-      get :index
-
-      json_resp = ActiveSupport::JSON.decode(@response.body)
-      expect(json_resp).to be_nil
-    end
   end
 
   describe "notes#creation" do
@@ -63,13 +54,13 @@ RSpec.describe NotesController, type: :controller do
   end
 
   describe "notes#destroy" do
-    it "should allow notes to be deleted" do
+    it "should allow archived notes to be deleted" do
       note = FactoryGirl.create(:note)
+      note.update(is_archived: true)
       sign_in note.user
-      delete :destroy, params: { id: note.id }
 
-      expect(response).to have_http_status(:success)
-      expect(Note.find_by_id(note.id)).to be_nil
+      expect { delete :destroy, params: { id: note.id } }.
+        to change(Note,:count).by(-1)
     end
 
     it "should require users to be logged in" do

@@ -17,8 +17,10 @@ RSpec.describe Tagging, type: :model do
       it "destroys orphan tags" do
         note1 = @user.notes.create(title: 'note1 #hashtag1')
         note2 = @user.notes.create(title: 'note2 #hashtag1')
+        note1.update(is_archived: true)
         note1.destroy
         expect(Tag.all.count).to eq(1)
+        note2.update(is_archived: true)
         note2.destroy
         expect(Tag.all.count).to eq(0)
       end
@@ -38,6 +40,7 @@ RSpec.describe Tagging, type: :model do
         note1 = @user.notes.create(title: 'note1 #hashtag1')
         note2 = @user.notes.create(title: 'note2 #hashtag1')
         expect(Tag.first.note_count).to eq(2)
+        note1.update(is_archived: true)
         note1.destroy
         expect(Tag.first.note_count).to eq(1)
       end
