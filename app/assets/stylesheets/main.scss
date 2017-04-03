@@ -68,7 +68,12 @@ input.toggle { display: none !important; }
   @media (max-width: 575px) {
     .clear-tag-filters { font-size: 24px; }
     label { font-size: 24px; }
+    .tags-container {
+      height: 400px;
+      overflow-y: auto;
+    }
   }
+
   .tag-filter { overflow-x: hidden; }
   label {
     display: inline-block;

@@ -41,16 +41,16 @@
             </label>
           </div>
         </div>
-
-        <ul class="nav flex-column">
-          <li class="nav-item untagged-filter">
-            <label>&nbsp;&nbsp;untagged</label>
-            <input class="toggle" type="checkbox" data-id="untagged">
-          </li>
-        </ul>
-        <ul class="nav flex-column list-hashtags"></ul>
-        <ul class="nav flex-column list-mentions"></ul>
-        <div class="sidebar-fader"></div>
+        <div class="tags-container">
+          <ul class="nav flex-column">
+            <li class="nav-item untagged-filter">
+              <label>&nbsp;&nbsp;untagged</label>
+              <input class="toggle" type="checkbox" data-id="untagged">
+            </li>
+          </ul>
+          <ul class="nav flex-column list-hashtags"></ul>
+          <ul class="nav flex-column list-mentions"></ul>
+        </div>
       </div>
     </div>
   </div>
@@ -443,8 +443,8 @@ $('.time-filters .time-interval').change(function() {
 
     function sortByTime(notes) {
       return notes.sort(function(a,b) {
-        var dateA = new Date(a.updated_at);
-        var dateB = new Date(b.updated_at);
+        var dateA = new Date(a.created_at);
+        var dateB = new Date(b.created_at);
         if (timeFilters.sort === 'newest') {
           return dateB - dateA;
         } else {
