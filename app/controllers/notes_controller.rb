@@ -2,7 +2,8 @@ class NotesController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    render json: filtered_notes(params)
+    notes = current_user.notes
+    render json: notes_with_tags(notes)
   end
 
   def create
@@ -33,53 +34,13 @@ class NotesController < ApplicationController
 
   private
 
-  def filtered_notes(params)
-    tags =     params[:tags]
-    archive =  params[:archive]
-    jointype = params[:jointype]
-    untagged = params[:untagged]
-
-    return get_all_notes(archive, untagged) if tags.nil?
-
-    tag_ids = tags.map {|t| t.to_i}
-    case jointype
-    when 'OR'
-      notes = get_or_tags_notes(tag_ids)
-    when 'AND'
-      notes = get_and_tags_notes(tag_ids)
-    else
-      raise Exception.new("Invalid join type was provided.")
+  def notes_with_tags(notes)
+    notes.includes(:tags).map do |note|
+      tags = note.tags.map { |tag| tag.id }
+      { id: note.id, title: note.title, body: note.body, user_id: note.user_id,
+        created_at: note.created_at, updated_at: note.updated_at,
+        is_archived: note.is_archived, tags: tags }
     end
-
-    notes += get_untagged_notes if untagged == 'true'
-    notes.to_a.uniq
-  end
-
-  def get_all_notes(archive, untagged)
-    if archive == 'true'
-      current_user.notes.archived
-    elsif untagged == 'true'
-      current_user.notes.unarchived.
-        left_outer_joins(:taggings).where(taggings: { id: nil })
-    else
-      current_user.notes.unarchived
-    end
-  end
-
-  def get_or_tags_notes(tag_ids)
-    current_user.notes.unarchived.
-      joins(:taggings).where(taggings: { tag_id: tag_ids })
-  end
-
-  def get_and_tags_notes(tag_ids)
-    current_user.notes.includes(:tags).select do |note|
-      ( tag_ids - note.tags.map {|t| t.id} ).empty?
-    end
-  end
-
-  def get_untagged_notes
-    current_user.notes.unarchived.
-      left_outer_joins(:taggings).where(taggings: { id: nil })
   end
 
   def note_params

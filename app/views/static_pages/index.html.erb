@@ -117,11 +117,13 @@
   $(function() {
 
     var filterTagIds = []; // tag Ids of the filters in use
-    var notesHtml = [];
     var archiveMode = false;
     var includeUntagged = false;
     var joinType = 'OR';
     var timeFilters = {sort: 'newest', interval: '0'}
+    var archivedNotes;
+    var unarchivedNotes;
+    requestNotes();
 
 /**********************************************************************/
 /***************************** Search form ****************************/
@@ -173,11 +175,12 @@
       $('#tagModal').modal('toggle');
     });
 
-    populateTags();
+    requestTags();
 
     // populate sidebar with tags
-    function populateTags () {
+    function requestTags () {
       if (archiveMode) return;
+      filterTagIds = [];
       $('#tagModal .list-hashtags li').remove();
       $('#tagModal .list-mentions li').remove();
       $.get("/tags").success(function(tags) {
@@ -228,7 +231,6 @@
     // Filter untagged notes
     $('#tagModal .untagged-filter').click(function(){
       var $checkbox = $(this).children('input');
-
       if ($checkbox.prop('checked')) {    // Remove tag filter
         $checkbox.prop('checked', false).change();
         includeUntagged = false;
@@ -288,8 +290,6 @@
     // Archive mode, only archived or unarchived notes shown
     $('#crudNotesModal .toggle-archive-btn').click(function() {
       var $checkbox = $(this).next('input');
-
-      filterTagIds = [];
       if ($checkbox.prop('checked')) {    // disable archive mode
         $checkbox.prop('checked', false);
         $('.brand .toggle-tag-filter').addClass("twag");
@@ -309,7 +309,7 @@
         }, 500);
         archiveMode = true;
       }
-      populateTags();
+      requestTags();
       populateNotes();
       populateFilterBar();
       $('#crudNotesModal').modal('toggle');
@@ -322,7 +322,7 @@
         url: '/empty-archives'
       }).success(function() {
         populateFilterBar();
-        populateNotes();
+        requestNotes();
         $('#crudNotesModal').modal('toggle');
       });
     });
@@ -342,7 +342,6 @@ $('.tag-filters').on('click', '.li-filter', function(){
     filterTagIds.splice(filterTagIds.indexOf(tagId), 1);
   }
   $(this).remove();
-
   populateNotes();
 });
 
@@ -369,38 +368,91 @@ function filterBarHtml(tagName, tagId) {
 // Sort notes by most recent or oldest
 $('.time-filters .time-sort').change(function() {
   timeFilters.sort = $(this).val();
-  sortNotes();
+  populateNotes();
 });
 
 // Filter notes by a time interval
 $('.time-filters .time-interval').change(function() {
   timeFilters.interval = $(this).val();
-  sortNotes();
+  populateNotes();
 });
 
 /**********************************************************************/
 /**************************** Notes Display ***************************/
 /**********************************************************************/
 
-    // Populate main window with notes
-    populateNotes();
-
-    // Adds notecard divs to the main window
-    function populateNotes() {
-      $('nav .search-form input').val('');
-      $('.note-container').remove();
-      $.get("/notes?"+queryStr(filterTagIds)+"&archive="+archiveMode+"&jointype="+joinType+"&untagged="+includeUntagged)
-      .success(function(notes) {
-        if (!notes) return null;
-        notesHtml = [];
-        notes.forEach(function(note, i) {
-          notesHtml.push( $($.parseHTML(noteHtml(note))) );
+    function requestNotes() {
+      $.get("/notes").success(function(notes) {
+        archivedNotes = [];
+        unarchivedNotes = [];
+        notes.forEach(function(note) {
+          if (note.is_archived) {
+            archivedNotes.push(note);
+          } else {
+            unarchivedNotes.push(note);
+          }
         });
-        sortNotes();
+        populateNotes();
       });
     }
 
-    // Creates a notecard <div>
+    function populateNotes() {
+      $('.note-container').remove();
+      var shownNotes = archiveMode ? archivedNotes : unarchivedNotes;
+      var notes = sortByTime(filterByTime(filterByTag(shownNotes)));
+      notes.forEach(function(note, i) {
+        $('.notecards-container').append(noteHtml(note));
+      });
+      noteCounter();
+    }
+
+    function filterByTag(notes) {
+      if (archiveMode) return notes;
+      if (filterTagIds.length === 0 && !includeUntagged) return notes;
+      var filteredNotes = [];
+      notes.forEach(function(note, i) {
+        var tagIds = note.tags;
+        if (includeUntagged && tagIds.length === 0) {
+          filteredNotes.push(note);
+          return;
+        }
+        if (joinType === 'OR' && filterTagIds.some((el) => tagIds.includes(el))) {
+           filteredNotes.push(note);
+           return;
+        }
+        if (joinType === 'AND' && filterTagIds.every((el) => tagIds.includes(el))) {
+          filteredNotes.push(note);
+          return;
+        }
+      });
+      return filteredNotes;
+    }
+
+    const DAY = 8.64e7;
+    function filterByTime(notes) {
+      var filteredNotes = [];
+      var interval = Number(timeFilters.interval) * DAY;
+      notes.forEach(function(note, i){
+        var today = new Date();
+        var updateDate = new Date(note.updated_at);
+        var createDate = new Date(note.created_at);
+        if (interval === 0 || today - createDate <= interval) filteredNotes.push(note);
+      });
+      return filteredNotes;
+    }
+
+    function sortByTime(notes) {
+      return notes.sort(function(a,b) {
+        var dateA = new Date(a.updated_at);
+        var dateB = new Date(b.updated_at);
+        if (timeFilters.sort === 'newest') {
+          return dateB - dateA;
+        } else {
+          return dateA - dateB;
+        }
+      });
+    }
+
     function noteHtml(note) {
       var title = note.title;
       var body = note.body;
@@ -418,42 +470,6 @@ $('.time-filters .time-interval').change(function() {
         '<div class="text-fader" />' +
         '</div></div>';
       return divElement;
-    }
-
-    // Creates a query string for the URL of the note get request
-    function queryStr(tagIds) {
-      var string = ""
-      tagIds.forEach(function(tagId, i) {
-        string += 'tags[]=' + tagId + '&'
-      });
-      return string.slice(0, -1);
-    }
-
-    // Sort and filter notes based on timeFilter options
-    const DAY = 8.64e7;
-    function sortNotes() {
-      $('.notecards-container .note-container').remove();
-      var sortedNotes = [];
-      var interval = Number(timeFilters.interval) * DAY;
-      notesHtml.forEach(function($note, i) {
-        var today = new Date();
-        var updateDate = new Date( $note.children('.notecard').data('updatetime') );
-        var createDate = new Date( $note.children('.notecard').data('createtime') );
-        if (interval === 0 || today - createDate <= interval) sortedNotes.push($note);
-      });
-      sortedNotes.sort(function(a,b) {
-        var dateA = new Date(a.children('.notecard').data('createtime'));
-        var dateB = new Date(b.children('.notecard').data('createtime'));
-        if (timeFilters.sort === 'newest') {
-          return dateB - dateA;
-        } else {
-          return dateA - dateB;
-        }
-      });
-      sortedNotes.forEach(function(note) {
-        $('.notecards-container').append(note);
-      });
-      noteCounter();
     }
 
     // counts the number of notecard divs
@@ -489,7 +505,7 @@ $('.time-filters .time-interval').change(function() {
         note: { title: titleStr, body: bodyStr }
       }).success(function() {
         $('#newNoteModal').modal('toggle');
-        populateTags();
+        requestTags();
         populateFilterBar();
         populateNotes();
       });
@@ -554,9 +570,9 @@ $('.time-filters .time-interval').change(function() {
       }).success(function() {
         filterTagIds = [];
         $('#noteModal').modal('toggle');
-        populateTags();
+        requestTags();
         populateFilterBar();
-        populateNotes();
+        requestNotes();
       });
     });
 
@@ -568,9 +584,9 @@ $('.time-filters .time-interval').change(function() {
         url: '/notes/' + noteId
       }).success(function() {
         $('#noteModal').modal('toggle');
-        populateTags();
+        requestTags();
         populateFilterBar();
-        populateNotes();
+        requestNotes();
       });
     });
 
@@ -592,9 +608,9 @@ $('.time-filters .time-interval').change(function() {
         note: { title: titleStr, body: bodyStr }
       }).success(function() {
         $('#noteModal').modal('toggle');
-        populateTags();
+        requestTags();
         populateFilterBar();
-        populateNotes();
+        requestNotes();
       });
     });
 
@@ -606,9 +622,9 @@ $('.time-filters .time-interval').change(function() {
         note: { is_archived: false }
       }).success(function() {
         $('#noteModal').modal('toggle');
-        populateTags();
+        requestTags();
         populateFilterBar();
-        populateNotes();
+        requestNotes();
       });
     });
 
