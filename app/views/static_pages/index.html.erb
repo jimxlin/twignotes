@@ -62,7 +62,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <button class="btn btn-primary new-note-btn col-12">New Note</button><br />
-        <button class="btn btn-primary drafts-btn col-12">Unsaved draft</button><br />
+        <button class="btn btn-info drafts-btn col-12">Restore draft</button><br />
         <label class="btn btn-warning toggle-archive-btn col-12">Toggle Archives</label>
         <input class="toggle" type="checkbox">
       </div>
@@ -82,10 +82,9 @@
         <div class="form-body-container">
           <textarea class="form-body" placeholder="Body"></textarea>
         </div>
-        <div class="form-time-container">
-        </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-discard mr-auto">Discard</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary btn-save">Save</button>
       </div>
@@ -337,13 +336,15 @@
 if (storageAvailable('localStorage')) {
   localStorageAvailable = true;
   if (!localStorage.getItem('draft')) {
-    localStorage.setItem('draft', JSON.stringify({title: '', body: ''}));
+    discardDraft();
   }
   $('.drafts-btn').css("display","inline-block");
+  $('.discard-btn').css("display","inline-block");
 }
 else {
   localStorageAvailable = false;
   $('.drafts-btn').css("display","none");
+  $('.discard-btn').css("display","none");
 }
 
 function storageAvailable(type) {
@@ -367,6 +368,11 @@ $('.drafts-btn').click(function() {
   $('#newNoteModal .form-body').val(draft.body);
   $('#newNoteModal').modal('toggle');
 });
+
+// Delete draft saved to localStorage
+function discardDraft() {
+  localStorage.setItem('draft', JSON.stringify({title: '', body: ''}));
+}
 
 /**********************************************************************/
 /***************************** Filterbar ******************************/
@@ -565,6 +571,12 @@ $('.time-filters .time-interval').change(function() {
       }
     });
 
+    // Discard the draft
+    $('#newNoteModal .btn-discard').click(function() {
+      discardDraft();
+      $('#newNoteModal').modal('toggle');
+    });
+
 /**********************************************************************/
 /**************************** View Note modal *************************/
 /**********************************************************************/
@@ -686,13 +698,13 @@ $('.time-filters .time-interval').change(function() {
     function modalButtonHtml(noteId) {
       if (archiveMode) {
         var str =
-          '<button type="button" class="btn btn-danger btn-delete" style="margin-right: auto;" data-id="' + noteId + '">Delete</button>' +
+          '<button type="button" class="btn btn-danger btn-delete mr-auto" data-id="' + noteId + '">Delete</button>' +
           '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
           '<button type="button" class="btn btn-primary btn-restore" data-id="' + noteId + '">Restore</button>'
         return str;
       } else {
         var str =
-          '<button type="button" class="btn btn-warning btn-archive" style="margin-right: auto;" data-id="' + noteId + '">Archive</button>' +
+          '<button type="button" class="btn btn-warning btn-archive mr-auto" data-id="' + noteId + '">Archive</button>' +
           '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
           '<button type="button" class="btn btn-primary btn-save" data-id="' + noteId + '">Save</button>'
         return str;
