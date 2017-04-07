@@ -62,6 +62,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <button class="btn btn-primary new-note-btn col-12">New Note</button><br />
+        <button class="btn btn-primary drafts-btn col-12">Drafts</button><br />
         <label class="btn btn-warning toggle-archive-btn col-12">Toggle Archives</label>
         <input class="toggle" type="checkbox">
       </div>
@@ -69,8 +70,23 @@
   </div>
 </div>
 
+<!-- Drafts Modal -->
+<div class="modal fade" id="draftsModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Drafts</h4>
+      </div>
+      <div class="modal-body">
+        <ul></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- New Note Modal -->
-<div class="modal fade" id="newNoteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+<div class="modal fade" id="newNoteModal" data-id="" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body">
@@ -85,6 +101,7 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-delete" style="margin-right: auto;">Discard</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary btn-save">Save</button>
       </div>
@@ -118,6 +135,8 @@
 
     var filterTagIds = []; // tag Ids of the filters in use
     var archiveMode = false;
+    var localStorageAvailable = true;
+    var drafts = {};
     var includeUntagged = false;
     var joinType = 'OR';
     var timeFilters = {sort: 'newest', interval: '0'}
@@ -328,6 +347,78 @@
     });
 
 /**********************************************************************/
+/***************************** Drafts *********************************/
+/**********************************************************************/
+
+// Enable drafts if localStorage is available
+if (storageAvailable('localStorage')) {
+  localStorageAvailable = true;
+  $('.drafts-btn').css("display","inline-block");
+}
+else {
+  localStorageAvailable = false;
+  $('.drafts-btn').css("display","none");
+}
+
+function storageAvailable(type) {
+	try {
+		var storage = window[type],
+			x = '__storage_test__';
+		storage.setItem(x, x);
+		storage.removeItem(x);
+		return true;
+	}
+	catch(e) {
+		return false;
+	}
+}
+
+// Retrieve localStorage drafts JSON and parse it
+if (localStorageAvailable) {
+  if (localStorage.getItem('drafts')) {
+    drafts = JSON.parse(localStorage.getItem('drafts'));
+  } else {
+    localStorage.setItem('drafts', JSON.stringify(drafts));
+  }
+  populateDrafts();
+  console.log(drafts);
+}
+
+// Show drafts modal
+$('.drafts-btn').click(function() {
+  $('#crudNotesModal').modal('toggle');
+  $('#draftsModal').modal('toggle');
+});
+
+// Display a draft
+$('#draftsModal').on('click', 'li', function() {
+  var draftId = $(this).data('id');
+  var titleTxt = drafts[draftId].title
+  var bodyTxt = drafts[draftId].body
+
+  $('#draftsModal').modal('toggle');
+  $('#newNoteModal .form-title').val(titleTxt);
+  $('#newNoteModal .form-body').val(bodyTxt);
+  $('#newNoteModal').modal('toggle');
+});
+
+// Populate drafts
+function populateDrafts() {
+  var draftsHtml = '';
+  Object.keys(drafts).forEach(function(draftKey) {
+    var draft = drafts[draftKey];
+    var displayTxt = draft.title.length === 0 ? draft.body : draft.title;
+    draftsHtml += draftHtml(displayTxt, draftKey)
+  });
+  if (draftsHtml.length === 0) draftsHtml = 'No drafts yet.';
+  $('#draftsModal ul').html(draftsHtml);
+}
+
+function draftHtml(text, draftId) {
+  return '<li data-id="' + draftId + '">' + text + '</li>'
+}
+
+/**********************************************************************/
 /***************************** Filterbar ******************************/
 /**********************************************************************/
 
@@ -507,8 +598,22 @@ $('.time-filters .time-interval').change(function() {
         $('#newNoteModal').modal('toggle');
         requestTags();
         populateFilterBar();
-        populateNotes();
+        requestNotes();
       });
+    });
+
+    // Continually save text as a draft in localStorage
+    $('#newNoteModal').keyup(function(key) {
+      if (key.keyCode == 32) {
+        var draftId = $('#newNoteModal').data('id');
+        draftId = draftId.length === 0 ? Object.keys(drafts).length : draftId
+
+        var titleStr= $('#newNoteModal .form-title').val();
+        var bodyStr = $('#newNoteModal .form-body').val();
+        drafts[draftId] = {title: titleStr, body: bodyStr}
+        localStorage.setItem('drafts', JSON.stringify(drafts));
+        populateDrafts();
+      }
     });
 
 /**********************************************************************/

@@ -83,12 +83,19 @@ input.toggle { display: none !important; }
   input { display: none; }
 }
 
- #crudNotesModal {
-   .toggle-archive-btn { margin-top: 15px; }
-   .delete-all-btn { margin-top: 240px; }
-   label { margin: 0; }
-   .btn { border-radius: 0.25rem; }
- }
+#crudNotesModal {
+  .drafts-btn { margin-top: 15px; }
+  .toggle-archive-btn { margin-top: 15px; }
+  .delete-all-btn { margin-top: 240px; }
+  label { margin: 0; }
+  .btn { border-radius: 0.25rem; }
+}
+
+#draftsModal {
+  li {
+    list-style: none;
+  }
+}
 
 .filter-bar {
   background-color: #64B5F6;
@@ -188,7 +195,7 @@ input.toggle { display: none !important; }
   }
 }
 
-#noteModal {
+#noteModal, #newNoteModal {
   .form-title, .form-body {
     width: 100%;
     height: 100%;
