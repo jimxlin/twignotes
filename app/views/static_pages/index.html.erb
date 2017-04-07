@@ -101,7 +101,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger btn-delete" style="margin-right: auto;">Discard</button>
+        <button type="button" class="btn btn-danger btn-discard" style="margin-right: auto;">Discard</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary btn-save">Save</button>
       </div>
@@ -381,7 +381,6 @@ if (localStorageAvailable) {
     localStorage.setItem('drafts', JSON.stringify(drafts));
   }
   populateDrafts();
-  console.log(drafts);
 }
 
 // Show drafts modal
@@ -397,6 +396,8 @@ $('#draftsModal').on('click', 'li', function() {
   var bodyTxt = drafts[draftId].body
 
   $('#draftsModal').modal('toggle');
+  $('#newNoteModal').data('id', draftId);
+  $('#newNoteModal').attr('data-id', draftId);
   $('#newNoteModal .form-title').val(titleTxt);
   $('#newNoteModal .form-body').val(bodyTxt);
   $('#newNoteModal').modal('toggle');
@@ -416,6 +417,11 @@ function populateDrafts() {
 
 function draftHtml(text, draftId) {
   return '<li data-id="' + draftId + '">' + text + '</li>'
+}
+
+function discardDraft(draftId) {
+  localStorage.removeItem(draftId);
+  populateDrafts();
 }
 
 /**********************************************************************/
@@ -578,6 +584,7 @@ $('.time-filters .time-interval').change(function() {
 
     $('#crudNotesModal .new-note-btn').click(function() {
       $('#crudNotesModal').modal('toggle');
+      $('#newNoteModal').data('id', '');
       $('#newNoteModal .form-title').val('');
       $('#newNoteModal .form-body').val('');
       $('#newNoteModal').modal('toggle');
@@ -600,6 +607,14 @@ $('.time-filters .time-interval').change(function() {
         populateFilterBar();
         requestNotes();
       });
+    });
+
+    $('#newNoteModal .btn-discard').click(function() {
+      var draftId = $('#newNoteModal').data('id');
+
+      if (draftId.length === 0) return;
+      discardDraft(draftId);
+      $('#newNoteModal').modal('toggle');
     });
 
     // Continually save text as a draft in localStorage

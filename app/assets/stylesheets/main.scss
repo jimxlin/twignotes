@@ -92,6 +92,7 @@ input.toggle { display: none !important; }
 }
 
 #draftsModal {
+  ul { padding: 0; }
   li {
     list-style: none;
   }
