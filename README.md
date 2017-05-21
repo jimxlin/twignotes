@@ -1,7 +1,7 @@
 # twignotes
 
 This is a note-taking SPA that supports twitter-like tagging with hashtags and mentions.  
-A [working version](https://twagnotes.herokuapp.com/) is hosted on Heroku. The following demo accounts with pre-saved notes are available:
+A [working version](https://twignotes.herokuapp.com/) is hosted on Heroku. The following demo accounts with pre-saved notes are available:
 * email: `foobar-0@foobar.com`, password: `foobar`
 * email: `foobar-1@foobar.com`, password: `foobar`
 * ...
